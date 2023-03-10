@@ -17,7 +17,7 @@ USE `movies` ;
 -- Table `movies`.`person`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `movies`.`person` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `firstName` VARCHAR(64) NOT NULL,
   `lastName` VARCHAR(64) NOT NULL,
   `birthDate` DATE NULL,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `movies`.`person` (
 -- Table `movies`.`movie`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `movies`.`movie` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(255) NOT NULL,
   `genre` VARCHAR(45) NOT NULL,
   `releaseYear` YEAR NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `movies`.`movie` (
 -- Table `movies`.`review`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `movies`.`review` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `text` VARCHAR(255) NOT NULL,
   `rating` FLOAT NOT NULL,
   `dateTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
