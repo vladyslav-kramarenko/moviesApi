@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `movies`.`movie` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(255) NOT NULL,
   `genre` VARCHAR(45) NOT NULL,
-  `releaseYear` YEAR NOT NULL,
+  `release_year` YEAR NOT NULL,
   `director_id` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_movie_person_idx` (`director_id` ASC) VISIBLE,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `movies`.`review` (
   CONSTRAINT `fk_review_movie1`
     FOREIGN KEY (`movie_id`)
     REFERENCES `movies`.`movie` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
 CONSTRAINT `check_rating_range`
     CHECK (`rating` >= 1.0 AND `rating` <= 10.0)
