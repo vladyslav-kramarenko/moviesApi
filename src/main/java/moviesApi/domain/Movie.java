@@ -1,13 +1,31 @@
 package moviesApi.domain;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+
+import jakarta.persistence.Id;
 import java.util.List;
 
+@Entity
 public class Movie {
-    public int getId() {
+    @Id
+    private long id;
+    private String title;
+    private String genre;
+    private int releaseYear;
+    private int directorId;
+    @ElementCollection
+    @CollectionTable(name = "actor_ids")
+    @Column(name = "actor_id")
+    private List<Long> actorIds;
+
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -43,27 +61,11 @@ public class Movie {
         this.directorId = directorId;
     }
 
-    public List<Integer> getActorIds() {
+    public List<Long> getActorIds() {
         return actorIds;
     }
 
-    public void setActorIds(List<Integer> actorIds) {
-        this.actorIds = actorIds;
-    }
-
-    private int id;
-    private String title;
-    private String genre;
-    private int releaseYear;
-    private int directorId;
-    private List<Integer> actorIds;
-
-    public Movie(int id, String title, String genre, int releaseYear, int directorId, List<Integer> actorIds) {
-        this.id = id;
-        this.title = title;
-        this.genre = genre;
-        this.releaseYear = releaseYear;
-        this.directorId = directorId;
+    public void setActorIds(List<Long> actorIds) {
         this.actorIds = actorIds;
     }
 }

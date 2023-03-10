@@ -32,11 +32,11 @@ CREATE TABLE IF NOT EXISTS `movies`.`movie` (
   `title` VARCHAR(255) NOT NULL,
   `genre` VARCHAR(45) NOT NULL,
   `releaseYear` YEAR NOT NULL,
-  `directorId` INT NOT NULL,
+  `director_id` INT NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_movie_person_idx` (`directorId` ASC) VISIBLE,
+  INDEX `fk_movie_person_idx` (`director_id` ASC) VISIBLE,
   CONSTRAINT `fk_movie_person`
-    FOREIGN KEY (`directorId`)
+    FOREIGN KEY (`director_id`)
     REFERENCES `movies`.`person` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
@@ -50,11 +50,11 @@ CREATE TABLE IF NOT EXISTS `movies`.`review` (
   `text` VARCHAR(255) NOT NULL,
   `rating` FLOAT NOT NULL,
   `dateTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `movieId` INT NOT NULL,
+  `movie_id` INT NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_review_movie1_idx` (`movieId` ASC) VISIBLE,
+  INDEX `fk_review_movie1_idx` (`movie_id` ASC) VISIBLE,
   CONSTRAINT `fk_review_movie1`
-    FOREIGN KEY (`movieId`)
+    FOREIGN KEY (`movie_id`)
     REFERENCES `movies`.`movie` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
@@ -67,19 +67,19 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `movies`.`movieActors`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `movies`.`movieActors` (
-  `actorId` INT NOT NULL,
-  `movieId` INT NOT NULL,
-  PRIMARY KEY (`actorId`, `movieId`),
-  INDEX `fk_person_has_movie_movie1_idx` (`movieId` ASC) VISIBLE,
-  INDEX `fk_person_has_movie_person1_idx` (`actorId` ASC) VISIBLE,
+CREATE TABLE IF NOT EXISTS `movies`.`actor_ids` (
+  `actor_id` INT NOT NULL,
+  `movie_id` INT NOT NULL,
+  PRIMARY KEY (`actor_id`, `movie_id`),
+  INDEX `fk_person_has_movie_movie1_idx` (`movie_id` ASC) VISIBLE,
+  INDEX `fk_person_has_movie_person1_idx` (`actor_id` ASC) VISIBLE,
   CONSTRAINT `fk_person_has_movie_person1`
-    FOREIGN KEY (`actorId`)
+    FOREIGN KEY (`actor_id`)
     REFERENCES `movies`.`person` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_person_has_movie_movie1`
-    FOREIGN KEY (`movieId`)
+    FOREIGN KEY (`movie_id`)
     REFERENCES `movies`.`movie` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);

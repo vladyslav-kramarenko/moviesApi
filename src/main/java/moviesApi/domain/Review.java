@@ -1,9 +1,17 @@
 package moviesApi.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
 import java.time.LocalDateTime;
 
+@Entity
 public class Review {
+    @Id
     private int id;
+    private float rating;
+    private LocalDateTime dateTime;
+    private int movieId;
     private String text;
 
     public int getId() {
@@ -43,18 +51,6 @@ public class Review {
     }
 
     public void setMovieId(int movieId) {
-        this.movieId = movieId;
-    }
-
-    private float rating;
-    private LocalDateTime dateTime;
-    private int movieId;
-
-    public Review(int id, String text, float rating, LocalDateTime dateTime, int movieId) {
-        this.id = id;
-        this.text = text;
-        this.rating = rating;
-        this.dateTime = dateTime;
         this.movieId = movieId;
     }
 }
