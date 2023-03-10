@@ -10,4 +10,6 @@ public interface MovieService {
     Optional<Movie> findById(Long id);
     Movie save(Movie movie);
     void deleteById(Long id);
+    long countByGenre(String genre);
+    long countByReleaseYear(int year);
 }

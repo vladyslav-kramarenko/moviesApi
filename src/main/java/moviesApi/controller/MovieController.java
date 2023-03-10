@@ -48,6 +48,18 @@ public class MovieController {
         }
     }
 
+    // GET the count of movies by genre
+    @GetMapping("/count/genre/{genre}")
+    public long getCountByGenre(@PathVariable String genre) {
+        return movieService.countByGenre(genre);
+    }
+
+    // GET the count of movies by release year
+    @GetMapping("/count/year/{year}")
+    public long getCountByReleaseYear(@PathVariable int year) {
+        return movieService.countByReleaseYear(year);
+    }
+
     @GetMapping("/test")
     public String testEndpoint() {
         return "This is a test endpoint";

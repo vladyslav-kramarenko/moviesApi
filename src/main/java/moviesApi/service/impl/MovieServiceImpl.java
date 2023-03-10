@@ -37,4 +37,18 @@ public class MovieServiceImpl implements MovieService {
     public void deleteById(Long id) {
         movieRepository.deleteById(id);
     }
+
+    @Override
+    public long countByGenre(String genre) {
+        return movieRepository.findAll().stream()
+                .filter(movie -> movie.getGenre().equalsIgnoreCase(genre))
+                .count();
+    }
+
+    @Override
+    public long countByReleaseYear(int year) {
+        return movieRepository.findAll().stream()
+                .filter(movie -> movie.getReleaseYear() == year)
+                .count();
+    }
 }
