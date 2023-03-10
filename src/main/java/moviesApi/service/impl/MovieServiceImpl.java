@@ -4,6 +4,7 @@ import moviesApi.domain.Movie;
 import moviesApi.repository.MovieRepository;
 import moviesApi.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,21 +41,17 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public long countByGenre(String genre) {
+    public long count(String genre, Integer year, Long directorId, Long actorId) {
         return movieRepository.findAll().stream()
-                .filter(movie -> movie.getGenre().equalsIgnoreCase(genre))
+                .filter(movie -> (genre == null || movie.getGenre().equalsIgnoreCase(genre)))
+                .filter(movie -> (year == null || movie.getReleaseYear().equals(year)))
+                .filter(movie -> (directorId == null || movie.getDirectorId().equals(directorId)))
+                .filter(movie -> (actorId == null || movie.getActorIds().contains(actorId)))
                 .count();
     }
 
     @Override
-    public long countByReleaseYear(int year) {
-        return movieRepository.findAll().stream()
-                .filter(movie -> movie.getReleaseYear() == year)
-                .count();
-    }
-
-    @Override
-    public List<Movie> filterMovies(String genre, Integer year, Long directorId, Long actorId) {
+    public List<Movie> filterMovies(String genre, Integer year, Long directorId, Long actorId, Pageable pageable) {
         List<Movie> allMovies = movieRepository.findAll();
 
         return allMovies.stream()

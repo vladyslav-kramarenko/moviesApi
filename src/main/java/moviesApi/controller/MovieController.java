@@ -3,6 +3,9 @@ package moviesApi.controller;
 import moviesApi.domain.Movie;
 import moviesApi.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,15 +23,26 @@ public class MovieController {
     }
 
     // GET all movies
-    @GetMapping("/all")
-    public ResponseEntity<List<Movie>> getAllMovies() {
-        List<Movie> movies = movieService.findAll();
+    @GetMapping("")
+    public ResponseEntity<List<Movie>> getAllMovies(
+            @RequestParam(name = "genre", required = false) String genre,
+            @RequestParam(name = "year", required = false) Integer year,
+            @RequestParam(name = "director", required = false) Long directorId,
+            @RequestParam(name = "actor", required = false) Long actorId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "sort", defaultValue = "id,asc") String[] sort
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+
+        List<Movie> movies = movieService.filterMovies(genre, year, directorId, actorId, pageable);
         if (movies.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.ok(movies);
         }
     }
+
     // Retrieve a movie by ID
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
@@ -48,32 +62,14 @@ public class MovieController {
         }
     }
 
-    // GET the count of movies by genre
-    @GetMapping("/count/genre/{genre}")
-    public long getCountByGenre(@PathVariable String genre) {
-        return movieService.countByGenre(genre);
-    }
-
-    // GET the count of movies by release year
-    @GetMapping("/count/year/{year}")
-    public long getCountByReleaseYear(@PathVariable int year) {
-        return movieService.countByReleaseYear(year);
-    }
-
-    @GetMapping("/filter")
-    public ResponseEntity<List<Movie>> filterMovies(
+    // GET the count of movies
+    @GetMapping("/count")
+    public long getCountByGenre(
             @RequestParam(name = "genre", required = false) String genre,
             @RequestParam(name = "year", required = false) Integer year,
             @RequestParam(name = "director", required = false) Long directorId,
             @RequestParam(name = "actor", required = false) Long actorId) {
-
-        List<Movie> filteredMovies = movieService.filterMovies(genre, year, directorId, actorId);
-
-        if (filteredMovies.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(filteredMovies);
-        }
+        return movieService.count(genre,year,directorId,actorId);
     }
 
     @GetMapping("/test")
