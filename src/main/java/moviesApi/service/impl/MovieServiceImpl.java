@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieServiceImpl implements MovieService {
@@ -50,5 +51,17 @@ public class MovieServiceImpl implements MovieService {
         return movieRepository.findAll().stream()
                 .filter(movie -> movie.getReleaseYear() == year)
                 .count();
+    }
+
+    @Override
+    public List<Movie> filterMovies(String genre, Integer year, Long directorId, Long actorId) {
+        List<Movie> allMovies = movieRepository.findAll();
+
+        return allMovies.stream()
+                .filter(movie -> (genre == null || movie.getGenre().equalsIgnoreCase(genre)))
+                .filter(movie -> (year == null || movie.getReleaseYear().equals(year)))
+                .filter(movie -> (directorId == null || movie.getDirectorId().equals(directorId)))
+                .filter(movie -> (actorId == null || movie.getActorIds().contains(actorId)))
+                .collect(Collectors.toList());
     }
 }

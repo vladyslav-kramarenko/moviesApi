@@ -6,16 +6,17 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 
 import jakarta.persistence.Id;
+
 import java.util.List;
 
 @Entity
 public class Movie {
     @Id
-    private long id;
+    private Long id;
     private String title;
     private String genre;
-    private int releaseYear;
-    private int directorId;
+    private Integer releaseYear;
+    private Long directorId;
     @ElementCollection
     @CollectionTable(name = "actor_ids")
     @Column(name = "actor_id")
@@ -45,19 +46,19 @@ public class Movie {
         this.genre = genre;
     }
 
-    public int getReleaseYear() {
+    public Integer getReleaseYear() {
         return releaseYear;
     }
 
-    public void setReleaseYear(int releaseYear) {
+    public void setReleaseYear(Integer releaseYear) {
         this.releaseYear = releaseYear;
     }
 
-    public int getDirectorId() {
+    public Long getDirectorId() {
         return directorId;
     }
 
-    public void setDirectorId(int directorId) {
+    public void setDirectorId(Long directorId) {
         this.directorId = directorId;
     }
 

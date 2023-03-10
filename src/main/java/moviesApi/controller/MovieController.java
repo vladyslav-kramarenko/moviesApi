@@ -60,6 +60,22 @@ public class MovieController {
         return movieService.countByReleaseYear(year);
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<Movie>> filterMovies(
+            @RequestParam(name = "genre", required = false) String genre,
+            @RequestParam(name = "year", required = false) Integer year,
+            @RequestParam(name = "director", required = false) Long directorId,
+            @RequestParam(name = "actor", required = false) Long actorId) {
+
+        List<Movie> filteredMovies = movieService.filterMovies(genre, year, directorId, actorId);
+
+        if (filteredMovies.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(filteredMovies);
+        }
+    }
+
     @GetMapping("/test")
     public String testEndpoint() {
         return "This is a test endpoint";
