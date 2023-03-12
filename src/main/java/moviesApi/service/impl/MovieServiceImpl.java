@@ -1,13 +1,16 @@
 package moviesApi.service.impl;
 
+import io.micrometer.common.util.StringUtils;
 import moviesApi.domain.Movie;
 import moviesApi.repository.MovieRepository;
 import moviesApi.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,5 +65,24 @@ public class MovieServiceImpl implements MovieService {
                 .filter(movie -> (year == null || movie.getReleaseYear().equals(year)))
                 .filter(movie -> (directorId == null || movie.getDirectorId().equals(directorId)))
                 .filter(movie -> (actorId == null || movie.getActorIds().contains(actorId)));
+    }
+
+    public boolean isValidMovie(Movie movie) throws IllegalArgumentException {
+        if (StringUtils.isBlank(movie.getTitle())) {
+            throw new IllegalArgumentException("Title cannot be blank");
+        }
+        if (StringUtils.isBlank(movie.getGenre())) {
+            throw new IllegalArgumentException("Genre cannot be blank");
+        }
+        if (movie.getReleaseYear() == null || !Pattern.matches("^\\d{4}$", movie.getReleaseYear().toString())) {
+            throw new IllegalArgumentException("Invalid release year format. Please use the format yyyy");
+        }
+        if (movie.getDirectorId() == null) {
+            throw new IllegalArgumentException("Director ID cannot be null");
+        }
+        if (movie.getActorIds() == null || movie.getActorIds().isEmpty()) {
+            throw new IllegalArgumentException("At least one actor ID is required");
+        }
+        return true;
     }
 }

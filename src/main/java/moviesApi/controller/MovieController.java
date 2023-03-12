@@ -26,7 +26,7 @@ public class MovieController {
 
     // GET all movies
     @GetMapping("")
-    public ResponseEntity<List<Movie>> getAllMovies(
+    public ResponseEntity<?> getAllMovies(
             @RequestParam(name = "genre", required = false) String genre,
             @RequestParam(name = "year", required = false) Integer year,
             @RequestParam(name = "director", required = false) Long directorId,
@@ -44,7 +44,7 @@ public class MovieController {
         String[] allowedProperties = {"id", "release_year", "genre", "director_id"};
         for (Sort.Order order : orders) {
             if (!Arrays.asList(allowedProperties).contains(order.getProperty())) {
-                throw new IllegalArgumentException("Invalid sort property: " + order.getProperty());
+                return ResponseEntity.badRequest().body("Invalid sort property: " + order.getProperty());
             }
         }
 
@@ -60,14 +60,14 @@ public class MovieController {
 
     //Create a movie
     @PostMapping("/add/movie")
-    public ResponseEntity<Movie> createMovie(@RequestBody Movie movie) {
-        // Create a new Movie object from the request data
-
-        // Save the new movie to the database
-        Movie savedMovie = movieService.save(movie);
-
-        // Return the saved movie object in the response
-        return ResponseEntity.ok(savedMovie);
+    public ResponseEntity<?> createMovie(@RequestBody Movie movie) {
+        try {
+            movieService.isValidMovie(movie);
+            Movie savedMovie = movieService.save(movie);
+            return ResponseEntity.ok(savedMovie);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     // Retrieve a movie by ID
@@ -79,21 +79,22 @@ public class MovieController {
 
     // Edit a movie with ID
     @PutMapping("/edit/movie/{id}")
-    public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie updatedMovie) {
+    public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody Movie updatedMovie) {
         Optional<Movie> movieOptional = movieService.findById(id);
         if (movieOptional.isPresent()) {
             Movie movie = movieOptional.get();
             try {
+                movieService.isValidMovie(updatedMovie);
                 movie.setTitle(updatedMovie.getTitle());
                 movie.setGenre(updatedMovie.getGenre());
                 movie.setReleaseYear(updatedMovie.getReleaseYear());
                 movie.setDirectorId(updatedMovie.getDirectorId());
                 movie.setActorIds(updatedMovie.getActorIds());
                 movieService.save(movie);
-            }catch (Exception e){
-                throw new IllegalArgumentException("Some movie property is invalid: " + updatedMovie);
+                return ResponseEntity.ok(movie);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
-            return ResponseEntity.ok(movie);
         } else {
             return ResponseEntity.notFound().build();
         }

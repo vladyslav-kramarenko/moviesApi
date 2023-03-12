@@ -18,4 +18,6 @@ public interface MovieService {
     long count(String genre, Integer year, Long directorId, Long actorId);
 
     List<Movie> filterMovies(String genre, Integer year, Long directorId, Long actorId, Pageable pageable);
+
+    boolean isValidMovie(Movie movie);
 }
