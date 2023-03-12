@@ -59,7 +59,7 @@ public class MovieController {
     }
 
     //Create a movie
-    @PostMapping("/add/movie")
+    @PostMapping("/add")
     public ResponseEntity<?> createMovie(@RequestBody Movie movie) {
         try {
             movieService.isValidMovie(movie);
@@ -78,7 +78,7 @@ public class MovieController {
     }
 
     // Edit a movie with ID
-    @PutMapping("/edit/movie/{id}")
+    @PutMapping("/edit/{id}")
     public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody Movie updatedMovie) {
         Optional<Movie> movieOptional = movieService.findById(id);
         if (movieOptional.isPresent()) {
