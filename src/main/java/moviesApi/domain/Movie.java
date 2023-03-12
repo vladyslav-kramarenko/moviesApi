@@ -1,17 +1,13 @@
 package moviesApi.domain;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.List;
 
 @Entity
 public class Movie {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     private String genre;
@@ -21,6 +17,7 @@ public class Movie {
     @CollectionTable(name = "actor_ids")
     @Column(name = "actor_id")
     private List<Long> actorIds;
+
 
     public long getId() {
         return id;
