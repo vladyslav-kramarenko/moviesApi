@@ -77,6 +77,28 @@ public class MovieController {
         return movieOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // Edit a movie with ID
+    @PutMapping("/edit/movie/{id}")
+    public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie updatedMovie) {
+        Optional<Movie> movieOptional = movieService.findById(id);
+        if (movieOptional.isPresent()) {
+            Movie movie = movieOptional.get();
+            try {
+                movie.setTitle(updatedMovie.getTitle());
+                movie.setGenre(updatedMovie.getGenre());
+                movie.setReleaseYear(updatedMovie.getReleaseYear());
+                movie.setDirectorId(updatedMovie.getDirectorId());
+                movie.setActorIds(updatedMovie.getActorIds());
+                movieService.save(movie);
+            }catch (Exception e){
+                throw new IllegalArgumentException("Some movie property is invalid: " + updatedMovie);
+            }
+            return ResponseEntity.ok(movie);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     // DELETE a movie by ID
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {

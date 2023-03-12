@@ -66,4 +66,13 @@ public class Movie {
     public void setActorIds(List<Long> actorIds) {
         this.actorIds = actorIds;
     }
+
+    @Override
+    public String toString() {
+        return "title: " + getTitle()
+                + "; genre: " + getGenre()
+                + "; year: " + getReleaseYear()
+                + "; director: " + getDirectorId()
+                + "; actors: " + getActorIds();
+    }
 }
