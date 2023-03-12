@@ -9,6 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,10 +33,23 @@ public class MovieController {
             @RequestParam(name = "actor", required = false) Long actorId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
-            @RequestParam(name = "sort", defaultValue = "id,asc") String[] sort
+            @RequestParam(name = "sort", defaultValue = "id,asc") String[] sortParams
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        List<Sort.Order> orders = new ArrayList<>();
+            String sortField = sortParams[0];
+            Sort.Direction direction = sortParams.length > 1 ? Sort.Direction.fromString(sortParams[1].toUpperCase()) : Sort.Direction.ASC;
+            orders.add(new Sort.Order(direction, sortField));
 
+        // Validate the sort orders
+        String[] allowedProperties = {"id", "release_year", "genre", "director_id"};
+        for (Sort.Order order : orders) {
+            if (!Arrays.asList(allowedProperties).contains(order.getProperty())) {
+                throw new IllegalArgumentException("Invalid sort property: " + order.getProperty());
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+        System.out.println("Pageable: " + pageable);
         List<Movie> movies = movieService.filterMovies(genre, year, directorId, actorId, pageable);
         if (movies.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -69,7 +84,7 @@ public class MovieController {
             @RequestParam(name = "year", required = false) Integer year,
             @RequestParam(name = "director", required = false) Long directorId,
             @RequestParam(name = "actor", required = false) Long actorId) {
-        return movieService.count(genre,year,directorId,actorId);
+        return movieService.count(genre, year, directorId, actorId);
     }
 
     @GetMapping("/test")

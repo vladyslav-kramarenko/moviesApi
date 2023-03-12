@@ -48,7 +48,7 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public List<Movie> filterMovies(String genre, Integer year, Long directorId, Long actorId, Pageable pageable) {
 
-        Stream<Movie> movieStream = movieRepository.findAll().stream();
+        Stream<Movie> movieStream = movieRepository.findAll(pageable.getSort()).stream();
         movieStream = filter(movieStream, genre, year, directorId, actorId);
 
         return movieStream
