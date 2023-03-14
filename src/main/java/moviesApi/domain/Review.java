@@ -11,17 +11,17 @@ import java.time.LocalDateTime;
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private float rating;
     private LocalDateTime dateTime;
-    private int movieId;
+    private Long movieId;
     private String text;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -49,11 +49,11 @@ public class Review {
         this.dateTime = dateTime;
     }
 
-    public int getMovieId() {
+    public Long getMovieId() {
         return movieId;
     }
 
-    public void setMovieId(int movieId) {
+    public void setMovieId(Long movieId) {
         this.movieId = movieId;
     }
 }

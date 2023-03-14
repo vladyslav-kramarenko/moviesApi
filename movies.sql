@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `movies`.`review` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `text` VARCHAR(255) NOT NULL,
   `rating` FLOAT NOT NULL,
-  `dateTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `movie_id` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_review_movie1_idx` (`movie_id` ASC) VISIBLE,

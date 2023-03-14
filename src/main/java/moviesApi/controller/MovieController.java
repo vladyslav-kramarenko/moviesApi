@@ -1,7 +1,9 @@
 package moviesApi.controller;
 
 import moviesApi.domain.Movie;
+import moviesApi.domain.Review;
 import moviesApi.service.MovieService;
+import moviesApi.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +20,12 @@ import java.util.Optional;
 @RequestMapping("/api/movies")
 public class MovieController {
     private final MovieService movieService;
+    private final ReviewService reviewService;
 
     @Autowired
-    public MovieController(MovieService movieService) {
+    public MovieController(MovieService movieService, ReviewService reviewService) {
         this.movieService = movieService;
+        this.reviewService = reviewService;
     }
 
     // GET all movies
@@ -59,7 +63,7 @@ public class MovieController {
     }
 
     //Create a movie
-    @PostMapping("/add")
+    @PostMapping("")
     public ResponseEntity<?> createMovie(@RequestBody Movie movie) {
         try {
             movieService.isValidMovie(movie);
@@ -78,7 +82,7 @@ public class MovieController {
     }
 
     // Edit a movie with ID
-    @PutMapping("/edit/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody Movie updatedMovie) {
         Optional<Movie> movieOptional = movieService.findById(id);
         if (movieOptional.isPresent()) {
@@ -101,7 +105,7 @@ public class MovieController {
     }
 
     // DELETE a movie by ID
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
         Optional<Movie> movieOptional = movieService.findById(id);
         if (movieOptional.isPresent()) {
@@ -120,6 +124,49 @@ public class MovieController {
             @RequestParam(name = "director", required = false) Long directorId,
             @RequestParam(name = "actor", required = false) Long actorId) {
         return movieService.count(genre, year, directorId, actorId);
+    }
+
+    //Create a review
+    @PostMapping("/{movieId}/reviews")
+    public ResponseEntity<?> addReview(@PathVariable Long movieId, @RequestBody Review review) {
+        Optional<Movie> movieOptional = movieService.findById(movieId);
+        if (movieOptional.isPresent()) {
+            Movie movie = movieOptional.get();
+            review.setMovieId(movie.getId());
+            reviewService.save(review);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // DELETE a review by ID
+    @DeleteMapping("/{movieId}/reviews/{reviewId}")
+    public ResponseEntity<?> deleteReview(@PathVariable Long movieId, @PathVariable Long reviewId) {
+        Optional<Review> reviewOptional = reviewService.findReviewById(reviewId);
+        if (reviewOptional.isPresent()) {
+            Review review = reviewOptional.get();
+            if (review.getMovieId().equals(movieId)) {
+                reviewService.deleteReviewById(reviewId);
+                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.badRequest().body("Review does not belong to movie with ID: " + movieId);
+            }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // GET all reviews for a movie by ID
+    @GetMapping("/{movieId}/reviews")
+    public ResponseEntity<List<Review>> getReviewsByMovieId(@PathVariable Long movieId) {
+        Optional<Movie> movieOptional = movieService.findById(movieId);
+        if (movieOptional.isPresent()) {
+            List<Review> reviews = reviewService.findReviewsByMovieId(movieId);
+            return ResponseEntity.ok(reviews);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/test")

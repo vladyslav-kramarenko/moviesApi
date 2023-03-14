@@ -69,7 +69,7 @@ VALUES
     ('Once Upon a Time in Hollywood', 'Comedy', '2019', 2),
     ('1917', 'War', '2019', 13);
 
-INSERT INTO `review` (`text`, `rating`, `dateTime`, `movie_id`)
+INSERT INTO `review` (`text`, `rating`, date_time, `movie_id`)
 VALUES
     ('A cinematic masterpiece!', 9.7, NOW(), 1),
     ('Heartbreaking and uplifting', 8.9, NOW(), 2),
