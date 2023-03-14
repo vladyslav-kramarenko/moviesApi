@@ -11,7 +11,7 @@ ALTER TABLE `movie` AUTO_INCREMENT = 1;
 ALTER TABLE `review` AUTO_INCREMENT = 1;
 
 -- Insert test data
-INSERT INTO `person` (`firstName`, `lastName`, `birthDate`)
+INSERT INTO `person` (first_name, last_name, birth_date)
 VALUES
     ('John', 'Doe', '1990-01-01'),
     ('Jane', 'Doe', '1995-05-05'),
