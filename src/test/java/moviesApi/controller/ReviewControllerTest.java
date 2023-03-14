@@ -1,5 +1,6 @@
 package moviesApi.controller;
 
+import moviesApi.SecurityConfig;
 import moviesApi.domain.Review;
 import moviesApi.service.ReviewService;
 
@@ -11,8 +12,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +27,6 @@ import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
-//@DataJpaTest
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest(properties = {
@@ -33,6 +35,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "spring.datasource.password=app_password"
 })
 @ComponentScan(basePackages = "moviesApi")
+@Import(SecurityConfig.class)
+//@WithMockUser(roles = "ADMIN")
+
+//@SpringBootTest(properties = {
+//        "spring.datasource.url=jdbc:mysql://localhost:3307/movies",
+//        "spring.datasource.username=user",
+//        "spring.datasource.password=app_password"
+//})
 class ReviewControllerTest {
 
     @Autowired
@@ -45,7 +55,14 @@ class ReviewControllerTest {
     private TestEntityManager entityManager;
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testDeleteReviewById() {
+        Long wrongId = -1L;
+        // Call the deleteReviewById method with wrong id
+        ResponseEntity<?> response = reviewController.deleteReview(wrongId);
+        // Verify the response
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
         // Create a test review
         Review testReview = generateReview();
 
@@ -53,7 +70,7 @@ class ReviewControllerTest {
         entityManager.flush();
 
         // Call the deleteReviewById method
-        ResponseEntity<?> response = reviewController.deleteReview(testReview.getId());
+        response = reviewController.deleteReview(testReview.getId());
 
         // Verify the response
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
@@ -76,7 +93,7 @@ class ReviewControllerTest {
 
         // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        List<Review> allReviews=response.getBody();
+        List<Review> allReviews = response.getBody();
         assertNotNull(allReviews);
         assertTrue(allReviews.contains(testReview1));
 
@@ -108,4 +125,26 @@ class ReviewControllerTest {
         // Delete the test review
         reviewService.deleteById(testReview.getId());
     }
+
+    @Test
+    void getReviewsById(){
+        Long wrongId = -1L;
+        //test with wrong id
+        ResponseEntity<Review> response = reviewController.getReviewById(wrongId);
+        // Verify the response
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        // Create a test review
+        Review testReview = generateReview();
+        reviewService.save(testReview);
+
+        response = reviewController.getReviewById(testReview.getId());
+        // Verify the response
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(testReview, response.getBody());
+
+        // Clean up test data
+        reviewService.deleteById(testReview.getId());
+    }
+
 }

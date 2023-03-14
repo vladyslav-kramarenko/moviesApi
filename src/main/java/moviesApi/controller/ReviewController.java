@@ -44,12 +44,12 @@ public class ReviewController {
 
     // GET review by id
     @GetMapping("{id}")
-    public ResponseEntity<Review> getReviewsById(@PathVariable Long id) {
-        Optional<Review> reviews = reviewService.findById(id);
-        if (reviews.isEmpty()) {
+    public ResponseEntity<Review> getReviewById(@PathVariable Long id) {
+        Optional<Review> review = reviewService.findById(id);
+        if (review.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
-            return ResponseEntity.ok(reviews.get());
+            return ResponseEntity.ok(review.get());
         }
     }
 

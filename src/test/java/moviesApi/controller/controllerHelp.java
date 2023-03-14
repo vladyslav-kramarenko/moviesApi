@@ -11,7 +11,7 @@ import java.util.List;
 
 public class controllerHelp {
 
-    public static Movie generateMovie(){
+    public static Movie generateMovie() {
         return generateMovieWithParams("Test Movie", "Genre", 2004, 1L, Arrays.asList(2L, 3L));
     }
 
@@ -28,12 +28,17 @@ public class controllerHelp {
 
 
     public static Review generateReview() {
+        return generateReview(2L);
+    }
+
+    public static Review generateReview(Long movieId) {
         Review review = new Review();
         review.setRating(5);
         review.setText("Test review text");
-        review.setMovieId(2L);
+        review.setMovieId(movieId);
         review.setDateTime(LocalDateTime.now());
         return review;
+
     }
 
     public static Person generatePerson() {

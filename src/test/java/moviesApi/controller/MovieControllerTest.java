@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
-//@DataJpaTest
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest(properties = {
@@ -38,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "spring.datasource.password=app_password"
 })
 @ComponentScan(basePackages = "moviesApi")
+//@WithMockUser(roles = "ADMIN")
 class MovieControllerTest {
 
     @Autowired
@@ -45,7 +45,6 @@ class MovieControllerTest {
 
     @Autowired
     private MovieService movieService;
-
 
     @Autowired
     private ReviewService reviewService;
@@ -84,8 +83,6 @@ class MovieControllerTest {
         ResponseEntity<Void> deleteResponse = movieController.deleteMovie(savedMovie.getId());
         assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
     }
-
-
 
     @Test
     public void testGetMovieById() {
@@ -128,7 +125,7 @@ class MovieControllerTest {
         actorIds.add(3L);
         testMovie.setActorIds(actorIds);
 
-        Long wrongId=-1L;
+        Long wrongId = -1L;
 
         response = movieController.updateMovie(wrongId, testMovie);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -159,7 +156,7 @@ class MovieControllerTest {
         entityManager.persist(testMovie);
         entityManager.flush();
 
-        Long wrongId=-1L;
+        Long wrongId = -1L;
 
         // Call the deleteMovieById method with wrong id
         ResponseEntity<Void> response = movieController.deleteMovie(wrongId);
@@ -206,15 +203,24 @@ class MovieControllerTest {
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
         response = movieController.getReviewsByMovieId(movie.getId());
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(0, ((List<Review>) response.getBody()).size());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test
     public void testGetReviewsByMovieId() {
+        Long wrongId = -1L;
+
+        //Check response when can't find a movie provided id
+        ResponseEntity<List<Review>> response = movieController.getReviewsByMovieId(wrongId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
         Movie movie = generateMovie();
         entityManager.persist(movie);
         entityManager.flush();
+
+        //Check response when a movie with provided id doesn't have any reviews
+        response = movieController.getReviewsByMovieId(movie.getId());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
         Review review1 = generateReview();
         review1.setMovieId(movie.getId());
@@ -224,12 +230,11 @@ class MovieControllerTest {
         review2.setMovieId(movie.getId());
         reviewService.save(review2);
 
-        ResponseEntity<List<Review>> response = movieController.getReviewsByMovieId(movie.getId());
+        response = movieController.getReviewsByMovieId(movie.getId());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
     }
-
 
 
     @Test
@@ -262,7 +267,7 @@ class MovieControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         List<Movie> movies = (List<Movie>) response.getBody();
-        assertTrue(movies.size()>=3);
+        assertTrue(movies.size() >= 3);
         assertTrue(movies.contains(movie1));
         assertTrue(movies.contains(movie2));
         assertTrue(movies.contains(movie3));
@@ -274,7 +279,7 @@ class MovieControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         movies = (List<Movie>) response.getBody();
-        assertTrue(movies.size()>=1);
+        assertTrue(movies.size() >= 1);
         assertTrue(movies.contains(movie3));
     }
 
@@ -312,5 +317,28 @@ class MovieControllerTest {
         count = movieController.getCount("Horror_test", null, null, null);
 
         assertEquals(0, count);
+    }
+
+    @Test
+    public void testDeleteAllReviewsByMovieId() {
+        // Create a test movie
+        Movie testMovie = generateMovie();
+        entityManager.persist(testMovie);
+        entityManager.flush();
+
+        // Create some reviews for the test movie
+        for (int i = 0; i < 3; i++) {
+            reviewService.save(generateReview(testMovie.getId()));
+        }
+
+        // Call the deleteAllReviewsByMovieId method
+        ResponseEntity<?> response = movieController.deleteAllReviewsByMovieId(testMovie.getId());
+
+        // Verify the response
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(3, Integer.parseInt(response.getHeaders().get("X-Deleted-Count").get(0)));
+
+        // Check that the reviews have been deleted
+        assertEquals(0, reviewService.findByMovieId(testMovie.getId()).size());
     }
 }

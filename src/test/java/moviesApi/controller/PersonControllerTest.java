@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
-//@DataJpaTest
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest(properties = {
@@ -36,16 +35,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 })
 @ComponentScan(basePackages = "moviesApi")
 class PersonControllerTest {
-
     @Autowired
     private PersonController personController;
-
     @Autowired
     private PersonService personService;
-
     @Autowired
     private TestEntityManager entityManager;
-
     @Test
     public void testGetAllPersons() {
         // Create some test persons
