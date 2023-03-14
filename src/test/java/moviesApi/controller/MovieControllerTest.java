@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -89,6 +90,43 @@ class MovieControllerTest {
 
         // Delete the test movie
         movieService.deleteById(testMovie.getId());
+    }
+
+    @Test
+    public void testUpdateMovie() {
+        // Create a test movie
+        Movie testMovie = generateMovie();
+
+        entityManager.persist(testMovie);
+        entityManager.flush();
+
+        ResponseEntity<?> response = movieController.getMovieById(testMovie.getId());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(testMovie, response.getBody());
+
+        List<Long> actorIds = new ArrayList<>(testMovie.getActorIds());
+
+        testMovie.setTitle("Updated Movie Title");
+        testMovie.setGenre("Updated Genre");
+        testMovie.setReleaseYear(2001);
+        testMovie.setDirectorId(2L);
+        actorIds.add(3L);
+        testMovie.setActorIds(actorIds);
+
+
+        // Call the updateMovie method
+        response = movieController.updateMovie(testMovie.getId(), testMovie);
+
+        // Verify the response
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        Movie savedMovie = (Movie) response.getBody();
+        assertEquals(testMovie.getTitle(), savedMovie.getTitle());
+        assertEquals(testMovie.getGenre(), savedMovie.getGenre());
+        assertEquals(testMovie.getReleaseYear(), savedMovie.getReleaseYear());
+        assertEquals(testMovie.getDirectorId(), savedMovie.getDirectorId());
+        assertEquals(testMovie.getActorIds(), savedMovie.getActorIds());
     }
 
     @Test
