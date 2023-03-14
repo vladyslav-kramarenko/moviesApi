@@ -41,11 +41,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(HttpMethod.POST, "/api/movies/add/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/movies/edit/**").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/movies/delete/**").hasAnyRole("ADMIN")
-                        .requestMatchers("/api/movies").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers(HttpMethod.POST).hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT).hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE).hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET).authenticated()
+                                .anyRequest().permitAll()
                 )
                 .httpBasic()
                 .and()

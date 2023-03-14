@@ -20,11 +20,11 @@ public class ReviewController {
     }
 
     // DELETE a review by ID
-    @DeleteMapping("/{reviewId}")
-    public ResponseEntity<?> deleteReview(@PathVariable Long reviewId) {
-        Optional<Review> reviewOptional = reviewService.findById(reviewId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteReview(@PathVariable Long id) {
+        Optional<Review> reviewOptional = reviewService.findById(id);
         if (reviewOptional.isPresent()) {
-            reviewService.deleteById(reviewId);
+            reviewService.deleteById(id);
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
@@ -33,12 +33,23 @@ public class ReviewController {
 
     // GET all reviews
     @GetMapping("")
-    public ResponseEntity<List<Review>> getReviewsByMovieId() {
+    public ResponseEntity<List<Review>> getAllReviews() {
         List<Review> reviews = reviewService.findAll();
         if (reviews.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
             return ResponseEntity.ok(reviews);
+        }
+    }
+
+    // GET review by id
+    @GetMapping("{id}")
+    public ResponseEntity<Review> getReviewsById(@PathVariable Long id) {
+        Optional<Review> reviews = reviewService.findById(id);
+        if (reviews.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(reviews.get());
         }
     }
 

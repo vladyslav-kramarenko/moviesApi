@@ -33,7 +33,7 @@ public class PersonController {
     }
 
     // Create a new person
-    @PostMapping
+    @PostMapping("")
     public ResponseEntity<Person> createPerson(@RequestBody Person person) {
         Person savedPerson = personService.save(person);
         return ResponseEntity.ok(savedPerson);

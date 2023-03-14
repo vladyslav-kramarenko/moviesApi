@@ -5,6 +5,7 @@ import moviesApi.repository.ReviewRepository;
 import moviesApi.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,10 +46,17 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void validateReview(Review review) {
-        int minRating =1;
-        int maxRating=10;
-        if(review.getRating()<minRating || review.getRating()>maxRating){
+        int minRating = 1;
+        int maxRating = 10;
+        if (review.getRating() < minRating || review.getRating() > maxRating) {
             throw new IllegalArgumentException("Rating should be between 1.0 and 10.0");
         }
+    }
+
+
+    @Transactional
+    @Override
+    public int deleteByMovieId(Long movieId) {
+        return reviewRepository.deleteByMovieId(movieId);
     }
 }

@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -143,6 +145,7 @@ public class MovieController {
             }
             Movie movie = movieOptional.get();
             review.setMovieId(movie.getId());
+            review.setDateTime(LocalDateTime.now());
             reviewService.save(review);
             return ResponseEntity.ok().build();
         } else {
@@ -173,9 +176,25 @@ public class MovieController {
         Optional<Movie> movieOptional = movieService.findById(movieId);
         if (movieOptional.isPresent()) {
             List<Review> reviews = reviewService.findByMovieId(movieId);
+            if(reviews.isEmpty()){
+                return ResponseEntity.noContent().build();
+            }
             return ResponseEntity.ok(reviews);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // Delete all reviews by movie id
+    @DeleteMapping("/{movieId}/reviews")
+    public ResponseEntity<?> deleteAllReviewsByMovieId(@PathVariable Long movieId) {
+        if (movieService.findById(movieId).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        int deleteCount=reviewService.deleteByMovieId(movieId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Deleted-Count", String.valueOf(deleteCount));
+        return ResponseEntity.noContent().headers(headers).build();
     }
 }

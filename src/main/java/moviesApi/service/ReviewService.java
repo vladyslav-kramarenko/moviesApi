@@ -18,4 +18,6 @@ public interface ReviewService {
     List<Review> findAll();
 
     void validateReview(Review review);
+
+    int deleteByMovieId(Long movieId);
 }
