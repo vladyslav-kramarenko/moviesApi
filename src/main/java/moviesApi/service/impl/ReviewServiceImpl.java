@@ -42,4 +42,13 @@ public class ReviewServiceImpl implements ReviewService {
     public List<Review> findAll() {
         return reviewRepository.findAll();
     }
+
+    @Override
+    public void validateReview(Review review) {
+        int minRating =1;
+        int maxRating=10;
+        if(review.getRating()<minRating || review.getRating()>maxRating){
+            throw new IllegalArgumentException("Rating should be between 1.0 and 10.0");
+        }
+    }
 }

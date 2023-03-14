@@ -136,6 +136,11 @@ public class MovieController {
     public ResponseEntity<?> addReview(@PathVariable Long movieId, @RequestBody Review review) {
         Optional<Movie> movieOptional = movieService.findById(movieId);
         if (movieOptional.isPresent()) {
+            try {
+                reviewService.validateReview(review);
+            } catch (IllegalArgumentException e) {
+                ResponseEntity.badRequest().body(e.getMessage());
+            }
             Movie movie = movieOptional.get();
             review.setMovieId(movie.getId());
             reviewService.save(review);

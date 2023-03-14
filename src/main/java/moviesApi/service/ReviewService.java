@@ -16,4 +16,6 @@ public interface ReviewService {
     void deleteById(Long reviewId);
 
     List<Review> findAll();
+
+    void validateReview(Review review);
 }
