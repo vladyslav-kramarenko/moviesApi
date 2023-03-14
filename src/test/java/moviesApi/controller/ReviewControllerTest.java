@@ -16,10 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static moviesApi.controller.controllerHelp.generateReview;
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -107,14 +107,5 @@ class ReviewControllerTest {
 
         // Delete the test review
         reviewService.deleteById(testReview.getId());
-    }
-
-    private static Review generateReview() {
-        Review review = new Review();
-        review.setRating(5);
-        review.setText("Test review text");
-        review.setMovieId(2L);
-        review.setDateTime(LocalDateTime.now());
-        return review;
     }
 }

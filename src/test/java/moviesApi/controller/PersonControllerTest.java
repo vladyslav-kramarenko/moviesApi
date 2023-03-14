@@ -1,4 +1,5 @@
 package moviesApi.controller;
+
 import moviesApi.domain.Person;
 import moviesApi.service.PersonService;
 
@@ -16,9 +17,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
+import static moviesApi.controller.controllerHelp.generatePerson;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
@@ -42,6 +46,24 @@ class PersonControllerTest {
     @Autowired
     private TestEntityManager entityManager;
 
+    @Test
+    public void testGetAllPersons() {
+        // Create some test persons
+        Person person1 = generatePerson();
+
+        entityManager.persist(person1);
+        entityManager.flush();
+
+        // Call the getAllPersons method
+        List<Person> persons = personController.getAllPersons();
+
+        // Verify the response
+        assertTrue(persons.size()>0);
+        assertTrue(persons.contains(person1));
+
+        // Delete the test persons
+        personService.deleteById(person1.getId());
+    }
     @Test
     public void testCreatePerson() {
         Person person = generatePerson();
@@ -98,8 +120,17 @@ class PersonControllerTest {
         testPerson.setLastName("Doe");
         testPerson.setBirthDate(LocalDate.of(1980, 1, 1));
 
+
+        Long wrongId = -1L;
+
+        // Call the updatePerson method with wrong id
+        ResponseEntity<Person> response = personController.updatePerson(wrongId, testPerson);
+
+        // Verify the response
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
         // Call the updatePerson method
-        ResponseEntity<Person> response = personController.updatePerson(testPerson.getId(), testPerson);
+        response = personController.updatePerson(testPerson.getId(), testPerson);
 
         // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -116,8 +147,16 @@ class PersonControllerTest {
         entityManager.persist(testPerson);
         entityManager.flush();
 
+        Long wrongId = -1L;
+
         // Call the deletePersonById method
-        ResponseEntity<Void> response = personController.deletePerson(testPerson.getId());
+        ResponseEntity<Void> response = personController.deletePerson(wrongId);
+
+        // Verify the response
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        // Call the deletePersonById method
+        response = personController.deletePerson(testPerson.getId());
 
         // Verify the response
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
@@ -125,18 +164,5 @@ class PersonControllerTest {
         // Check that the person has been deleted
         Optional<Person> personOptional = personService.findById(testPerson.getId());
         assertFalse(personOptional.isPresent());
-    }
-
-    private static Person generatePerson() {
-        return generatePersonWithParams("Test", "Person", LocalDate.of(2000, 1, 1));
-    }
-
-    // Create a person with the given data
-    private static Person generatePersonWithParams(String firstName, String lastName, LocalDate birthDate) {
-        Person person = new Person();
-        person.setFirstName(firstName);
-        person.setLastName(lastName);
-        person.setBirthDate(birthDate);
-        return person;
     }
 }
