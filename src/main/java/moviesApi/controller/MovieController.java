@@ -40,9 +40,14 @@ public class MovieController {
             @RequestParam(name = "sort", defaultValue = "id,asc") String[] sortParams
     ) {
         List<Sort.Order> orders = new ArrayList<>();
-        String sortField = sortParams[0];
-        Sort.Direction direction = sortParams.length > 1 ? Sort.Direction.fromString(sortParams[1].toUpperCase()) : Sort.Direction.ASC;
-        orders.add(new Sort.Order(direction, sortField));
+
+        try {
+            String sortField = sortParams[0];
+            Sort.Direction direction = sortParams.length > 1 ? Sort.Direction.fromString(sortParams[1].toUpperCase()) : Sort.Direction.ASC;
+            orders.add(new Sort.Order(direction, sortField));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid sort order: " + sortParams[1]);
+        }
 
         // Validate the sort orders
         String[] allowedProperties = {"id", "release_year", "genre", "director_id"};
@@ -118,7 +123,7 @@ public class MovieController {
 
     // GET the count of movies
     @GetMapping("/count")
-    public long getCountByGenre(
+    public long getCount(
             @RequestParam(name = "genre", required = false) String genre,
             @RequestParam(name = "year", required = false) Integer year,
             @RequestParam(name = "director", required = false) Long directorId,
