@@ -143,11 +143,11 @@ public class MovieController {
     // DELETE a review by ID
     @DeleteMapping("/{movieId}/reviews/{reviewId}")
     public ResponseEntity<?> deleteReview(@PathVariable Long movieId, @PathVariable Long reviewId) {
-        Optional<Review> reviewOptional = reviewService.findReviewById(reviewId);
+        Optional<Review> reviewOptional = reviewService.findById(reviewId);
         if (reviewOptional.isPresent()) {
             Review review = reviewOptional.get();
             if (review.getMovieId().equals(movieId)) {
-                reviewService.deleteReviewById(reviewId);
+                reviewService.deleteById(reviewId);
                 return ResponseEntity.noContent().build();
             } else {
                 return ResponseEntity.badRequest().body("Review does not belong to movie with ID: " + movieId);
@@ -162,15 +162,10 @@ public class MovieController {
     public ResponseEntity<List<Review>> getReviewsByMovieId(@PathVariable Long movieId) {
         Optional<Movie> movieOptional = movieService.findById(movieId);
         if (movieOptional.isPresent()) {
-            List<Review> reviews = reviewService.findReviewsByMovieId(movieId);
+            List<Review> reviews = reviewService.findByMovieId(movieId);
             return ResponseEntity.ok(reviews);
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @GetMapping("/test")
-    public String testEndpoint() {
-        return "This is a test endpoint";
     }
 }

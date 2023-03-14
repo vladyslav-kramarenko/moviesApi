@@ -7,13 +7,13 @@ import java.util.Optional;
 
 public interface ReviewService {
 
-    void save(Review review);
+    Review save(Review review);
 
-    List<Review> findReviewsByMovieId(Long movieId);
+    List<Review> findByMovieId(Long movieId);
 
-    Optional<Review> findReviewById(Long reviewId);
+    Optional<Review> findById(Long reviewId);
 
-    void deleteReviewById(Long reviewId);
+    void deleteById(Long reviewId);
 
     List<Review> findAll();
 }

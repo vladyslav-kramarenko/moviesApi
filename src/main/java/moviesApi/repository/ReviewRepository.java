@@ -10,11 +10,11 @@ import java.util.Optional;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    List<Review> findReviewsByMovieId(Long movieId);
+    List<Review> findByMovieId(Long movieId);
 
-    Optional<Review> findReviewById(Long reviewId);
+    Optional<Review> findById(Long id);
 
-    void deleteReviewById(Long reviewId);
+    void deleteById(Long id);
 
     List<Review> findAll();
 

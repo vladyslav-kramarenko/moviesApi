@@ -19,23 +19,23 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void save(Review review) {
-        reviewRepository.save(review);
+    public Review save(Review review) {
+        return reviewRepository.save(review);
     }
 
     @Override
-    public List<Review> findReviewsByMovieId(Long movieId) {
-        return reviewRepository.findReviewsByMovieId(movieId);
+    public List<Review> findByMovieId(Long movieId) {
+        return reviewRepository.findByMovieId(movieId);
     }
 
     @Override
-    public Optional<Review> findReviewById(Long reviewId) {
-        return reviewRepository.findReviewById(reviewId);
+    public Optional<Review> findById(Long id) {
+        return reviewRepository.findById(id);
     }
 
     @Override
-    public void deleteReviewById(Long reviewId) {
-        reviewRepository.deleteReviewById(reviewId);
+    public void deleteById(Long id) {
+        reviewRepository.deleteById(id);
     }
 
     @Override

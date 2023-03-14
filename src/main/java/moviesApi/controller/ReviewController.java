@@ -22,9 +22,9 @@ public class ReviewController {
     // DELETE a review by ID
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteReview(@PathVariable Long reviewId) {
-        Optional<Review> reviewOptional = reviewService.findReviewById(reviewId);
+        Optional<Review> reviewOptional = reviewService.findById(reviewId);
         if (reviewOptional.isPresent()) {
-            reviewService.deleteReviewById(reviewId);
+            reviewService.deleteById(reviewId);
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
@@ -42,8 +42,18 @@ public class ReviewController {
         }
     }
 
-    @GetMapping("/test")
-    public String testEndpoint() {
-        return "This is a test endpoint";
+    // Update an existing review
+    @PutMapping("/{id}")
+    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Review review) {
+        Optional<Review> existingReviewOptional = reviewService.findById(id);
+        if (existingReviewOptional.isPresent()) {
+            Review existingReview = existingReviewOptional.get();
+            existingReview.setRating(review.getRating());
+            existingReview.setText(review.getText());
+            Review updatedReview = reviewService.save(existingReview);
+            return ResponseEntity.ok(updatedReview);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

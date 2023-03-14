@@ -18,9 +18,9 @@ USE `movies` ;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `movies`.`person` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `firstName` VARCHAR(64) NOT NULL,
-  `lastName` VARCHAR(64) NOT NULL,
-  `birthDate` DATE NULL,
+  `first_name` VARCHAR(64) NOT NULL,
+  `last_name` VARCHAR(64) NOT NULL,
+  `birth_date` DATE NULL,
   PRIMARY KEY (`id`));
 
 
