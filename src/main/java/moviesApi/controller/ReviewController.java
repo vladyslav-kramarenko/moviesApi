@@ -1,5 +1,9 @@
 package moviesApi.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import moviesApi.domain.Review;
 import moviesApi.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/reviews")
+@Tag(name = "Review Controller", description = "APIs for managing reviews")
 public class ReviewController {
     private final ReviewService reviewService;
 
@@ -19,8 +24,12 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    // DELETE a review by ID
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a review by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Review deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "The review you are trying to delete doesn't exist")
+    })
     public ResponseEntity<?> deleteReview(@PathVariable Long id) {
         Optional<Review> reviewOptional = reviewService.findById(id);
         if (reviewOptional.isPresent()) {
@@ -31,8 +40,12 @@ public class ReviewController {
         }
     }
 
-    // GET all reviews
     @GetMapping("")
+    @Operation(summary = "View a list of all available reviews")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of reviews"),
+            @ApiResponse(responseCode = "404", description = "No reviews found")
+    })
     public ResponseEntity<List<Review>> getAllReviews() {
         List<Review> reviews = reviewService.findAll();
         if (reviews.isEmpty()) {
@@ -42,8 +55,12 @@ public class ReviewController {
         }
     }
 
-    // GET review by id
     @GetMapping("{id}")
+    @Operation(summary = "View a review by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the review"),
+            @ApiResponse(responseCode = "404", description = "The review you are trying to retrieve doesn't exist")
+    })
     public ResponseEntity<Review> getReviewById(@PathVariable Long id) {
         Optional<Review> review = reviewService.findById(id);
         if (review.isEmpty()) {
@@ -53,8 +70,12 @@ public class ReviewController {
         }
     }
 
-    // Update an existing review
     @PutMapping("/{id}")
+    @Operation(summary = "Update a review by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated the review"),
+            @ApiResponse(responseCode = "404", description = "The review you are trying to update doesn't exist")
+    })
     public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Review review) {
         Optional<Review> existingReviewOptional = reviewService.findById(id);
         if (existingReviewOptional.isPresent()) {

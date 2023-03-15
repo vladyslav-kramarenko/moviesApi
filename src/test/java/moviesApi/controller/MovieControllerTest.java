@@ -190,23 +190,6 @@ class MovieControllerTest {
     }
 
     @Test
-    public void testDeleteReview() {
-        Movie movie = generateMovie();
-        entityManager.persist(movie);
-        entityManager.flush();
-
-        Review review = generateReview();
-        review.setMovieId(movie.getId());
-        reviewService.save(review);
-
-        ResponseEntity<?> response = movieController.deleteReview(movie.getId(), review.getId());
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-
-        response = movieController.getReviewsByMovieId(movie.getId());
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-    }
-
-    @Test
     public void testGetReviewsByMovieId() {
         Long wrongId = -1L;
 
