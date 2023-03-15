@@ -3,6 +3,7 @@ spring:
     url: jdbc:mysql://localhost:3307/movies
     username: user
     password: app_password
+    driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
     properties:
       hibernate:

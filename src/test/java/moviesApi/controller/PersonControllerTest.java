@@ -1,5 +1,6 @@
 package moviesApi.controller;
 
+import moviesApi.SecurityConfig;
 import moviesApi.domain.Person;
 import moviesApi.service.PersonService;
 
@@ -8,11 +9,15 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +30,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@AutoConfigureTestEntityManager
+@ComponentScan(basePackages = "moviesApi")
+@Import(SecurityConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@DataJpaTest(properties = {
-        "spring.datasource.url=jdbc:mysql://localhost:3307/movies",
-        "spring.datasource.username=user",
-        "spring.datasource.password=app_password"
-})
-@ComponentScan(basePackages = "moviesApi")
 class PersonControllerTest {
     @Autowired
     private PersonController personController;
@@ -42,6 +46,7 @@ class PersonControllerTest {
     @Autowired
     private TestEntityManager entityManager;
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetAllPersons() {
         // Create some test persons
         Person person1 = generatePerson();
@@ -60,6 +65,7 @@ class PersonControllerTest {
         personService.deleteById(person1.getId());
     }
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testCreatePerson() {
         Person person = generatePerson();
 
@@ -85,6 +91,7 @@ class PersonControllerTest {
 
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetPersonById() {
         // Create a test person
         Person testPerson = generatePerson();
@@ -104,6 +111,7 @@ class PersonControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testUpdatePerson() {
         // Create a test person
         Person testPerson = generatePerson();
@@ -136,6 +144,7 @@ class PersonControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testDeletePersonById() {
         // Create a test person
         Person testPerson = generatePerson();

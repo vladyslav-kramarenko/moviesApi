@@ -1,5 +1,6 @@
 package moviesApi.controller;
 
+import moviesApi.SecurityConfig;
 import moviesApi.domain.Movie;
 import moviesApi.domain.Review;
 import moviesApi.service.MovieService;
@@ -10,11 +11,15 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,16 +33,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@AutoConfigureTestEntityManager
+@ComponentScan(basePackages = "moviesApi")
+@Import(SecurityConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@DataJpaTest(properties = {
-        "spring.datasource.url=jdbc:mysql://localhost:3307/movies",
-        "spring.datasource.username=user",
-        "spring.datasource.password=app_password"
-})
-@ComponentScan(basePackages = "moviesApi")
-//@WithMockUser(roles = "ADMIN")
 class MovieControllerTest {
 
     @Autowired
@@ -53,6 +56,7 @@ class MovieControllerTest {
 
     @Test
 //    @Rollback(false)
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testCreateMovie() {
         Movie movie = generateMovie();
         movie.setReleaseYear(0);
@@ -85,6 +89,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetMovieById() {
         // Create a test movie
         Movie testMovie = generateMovie();
@@ -104,6 +109,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testUpdateMovie() {
         // Create a test movie
         Movie testMovie = generateMovie();
@@ -150,6 +156,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testDeleteMovieById() {
         // Create a test movie
         Movie testMovie = generateMovie();
@@ -176,6 +183,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testAddReview() {
         Movie movie = generateMovie();
         entityManager.persist(movie);
@@ -190,6 +198,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetReviewsByMovieId() {
         Long wrongId = -1L;
 
@@ -221,6 +230,7 @@ class MovieControllerTest {
 
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetAllMovies() {
         Movie movie1 = generateMovieWithParams("The Shawshank Redemption_test", "Drama", 1994, 1L, Arrays.asList(1L, 2L));
         Movie movie2 = generateMovieWithParams("The Godfather_test", "Crime", 1972, 2L, Arrays.asList(1L, 3L));
@@ -267,6 +277,7 @@ class MovieControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetCount() {
         Movie movie1 = generateMovieWithParams("Test Movie 1", "Comedy_test", 2000, 2L, Arrays.asList(2L, 3L));
         Movie movie2 = generateMovieWithParams("Test Movie 2", "Drama_test", 2001, 2L, Arrays.asList(2L, 3L));
@@ -282,23 +293,18 @@ class MovieControllerTest {
         entityManager.flush();
 
         long count = movieController.getCount("Comedy_test", null, null, null);
-
         assertEquals(3, count);
 
         count = movieController.getCount("Comedy_test", 2002, null, null);
-
         assertEquals(1, count);
 
         count = movieController.getCount("Comedy_test", null, 2L, null);
-
         assertEquals(2, count);
 
         count = movieController.getCount("Comedy_test", null, null, 3L);
-
         assertEquals(3, count);
 
         count = movieController.getCount("Horror_test", null, null, null);
-
         assertEquals(0, count);
     }
 

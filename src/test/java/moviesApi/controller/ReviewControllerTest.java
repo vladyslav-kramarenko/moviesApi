@@ -9,8 +9,10 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
@@ -28,23 +30,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
 @Transactional
+@AutoConfigureTestEntityManager
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@DataJpaTest(properties = {
-        "spring.datasource.url=jdbc:mysql://localhost:3307/movies",
-        "spring.datasource.username=user",
-        "spring.datasource.password=app_password"
-})
 @ComponentScan(basePackages = "moviesApi")
 @Import(SecurityConfig.class)
-//@WithMockUser(roles = "ADMIN")
-
-//@SpringBootTest(properties = {
-//        "spring.datasource.url=jdbc:mysql://localhost:3307/movies",
-//        "spring.datasource.username=user",
-//        "spring.datasource.password=app_password"
-//})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class ReviewControllerTest {
-
     @Autowired
     private ReviewController reviewController;
 
@@ -81,6 +73,7 @@ class ReviewControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetAllReviews() {
         // Create test reviews
         Review testReview1 = generateReview();
@@ -102,6 +95,7 @@ class ReviewControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testUpdateReviewById() {
         // Create a test review
         Review testReview = generateReview();
@@ -127,6 +121,7 @@ class ReviewControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     void getReviewsById(){
         Long wrongId = -1L;
         //test with wrong id
@@ -146,5 +141,4 @@ class ReviewControllerTest {
         // Clean up test data
         reviewService.deleteById(testReview.getId());
     }
-
 }
