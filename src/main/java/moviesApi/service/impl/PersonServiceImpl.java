@@ -39,7 +39,7 @@ public class PersonServiceImpl implements PersonService {
         if (StringUtils.isBlank(person.getLastName())) {
             throw new IllegalArgumentException("Last name cannot be blank");
         }
-        if (person.getBirthDate() != null) {
+        if (person.getBirthDate() == null) {
             throw new IllegalArgumentException("Birth date cannot be blank");
         }
         if (person.getBirthDate().isAfter(LocalDate.now())) {

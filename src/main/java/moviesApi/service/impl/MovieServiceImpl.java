@@ -84,7 +84,7 @@ public class MovieServiceImpl implements MovieService {
         if (movie.getReleaseYear() < Constants.MIN_MOVIE_RELEASE_YEAR) {
             throw new IllegalArgumentException("Release year cannot be greater than " + Constants.MIN_MOVIE_RELEASE_YEAR);
         }
-        if (movie.getReleaseYear() < Constants.MAX_MOVIE_RELEASE_YEAR) {
+        if (movie.getReleaseYear() > Constants.MAX_MOVIE_RELEASE_YEAR) {
             throw new IllegalArgumentException("Release year cannot be less than " + Constants.MAX_MOVIE_RELEASE_YEAR);
         }
         if (movie.getDirectorId() == null) {
