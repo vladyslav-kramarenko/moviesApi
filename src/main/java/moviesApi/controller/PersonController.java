@@ -3,6 +3,7 @@ package moviesApi.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import moviesApi.domain.Person;
 import moviesApi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +43,14 @@ public class PersonController {
     @PostMapping("")
     @Operation(summary = "Create a new person", description = "Create a new person with the given information.")
     @ApiResponse(responseCode = "200", description = "Person created successfully")
-    public ResponseEntity<Person> createPerson(@RequestBody Person person) {
-        Person savedPerson = personService.save(person);
-        return ResponseEntity.ok(savedPerson);
+    public ResponseEntity<?> createPerson(@Valid @RequestBody Person person) {
+        try {
+            personService.validatePerson(person);
+            Person savedPerson = personService.save(person);
+            return ResponseEntity.ok(savedPerson);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")

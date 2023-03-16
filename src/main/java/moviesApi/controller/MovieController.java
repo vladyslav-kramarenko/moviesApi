@@ -22,10 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static moviesApi.util.Utilities.createSort;
 
 @RestController
 @RequestMapping("/api/movies")
@@ -70,21 +70,6 @@ public class MovieController {
             String[] allowedProperties = {"id", "release_year", "genre", "director_id"};
             List<Sort.Order> orders = createSort(sortParams, allowedProperties);
 
-//        List<Sort.Order> orders = new ArrayList<>();
-//        try {
-//            String sortField = sortParams[0];
-//            Sort.Direction direction = sortParams.length > 1 ? Sort.Direction.fromString(sortParams[1].toUpperCase()) : Sort.Direction.ASC;
-//            orders.add(new Sort.Order(direction, sortField));
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body("Invalid sort order: " + sortParams[1]);
-//        }
-//        // Validate the sort orders
-//        String[] allowedProperties = {"id", "release_year", "genre", "director_id"};
-//        for (Sort.Order order : orders) {
-//            if (!Arrays.asList(allowedProperties).contains(order.getProperty())) {
-//                return ResponseEntity.badRequest().body("Invalid sort property: " + order.getProperty());
-//            }
-//        }
             Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
             List<Movie> movies = movieService.filterMovies(genre, year, directorId, actorId, pageable);
             if (movies.isEmpty()) {
@@ -96,28 +81,6 @@ public class MovieController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-    private List<Sort.Order> createSort(String[] sortParams, String[] allowedProperties) {
-        List<Sort.Order> orders = new ArrayList<>();
-        try {
-            String sortField = sortParams[0];
-            Sort.Direction direction = sortParams.length > 1 ? Sort.Direction.fromString(sortParams[1].toUpperCase()) : Sort.Direction.ASC;
-            orders.add(new Sort.Order(direction, sortField));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid sort order: " + sortParams[1]);
-//            return ResponseEntity.badRequest().body("Invalid sort order: " + sortParams[1]);
-        }
-        // Validate the sort orders
-//        String[] allowedProperties = {"id", "release_year", "genre", "director_id"};
-        for (Sort.Order order : orders) {
-            if (!Arrays.asList(allowedProperties).contains(order.getProperty())) {
-                throw new IllegalArgumentException("Invalid sort property: " + order.getProperty());
-//                return ResponseEntity.badRequest().body("Invalid sort property: " + order.getProperty());
-            }
-        }
-        return orders;
-    }
-
 
     @PostMapping("")
     @Operation(summary = "Create a movie")

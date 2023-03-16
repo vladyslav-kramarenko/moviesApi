@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.*;
+import moviesApi.util.Constants;
 
 import java.time.LocalDateTime;
 
@@ -14,14 +15,14 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull
-    @Min(value = 1, message = "rating must be between 1 and 10")
-    @Max(value = 10, message = "rating must be between 1 and 10")
+    @Min(value = Constants.MIN_REVIEW_RATING, message = "rating must be between " + Constants.MIN_REVIEW_RATING + " and " + Constants.MAX_REVIEW_RATING)
+    @Max(value = Constants.MAX_REVIEW_RATING, message = "rating must be between " + Constants.MIN_REVIEW_RATING + " and " + Constants.MAX_REVIEW_RATING)
     private float rating;
     private LocalDateTime dateTime;
     @NotNull
     @Positive
     private Long movieId;
-    @Size(max = 255, message = "Review text must be under 255 characters")
+    @Size(max = Constants.MAX_REVIEW_LENGTH, message = "Review text must be under " + Constants.MAX_REVIEW_LENGTH + " characters")
     private String text;
 
     public Long getId() {

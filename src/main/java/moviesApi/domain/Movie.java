@@ -2,6 +2,7 @@ package moviesApi.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import moviesApi.util.Constants;
 
 import java.util.List;
 
@@ -11,13 +12,13 @@ public class Movie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull(message = "Title cannot be blank")
-    @Size(min = 1, max = 255,message = "Title must be between 1 and 255 characters")
+    @Size(max = Constants.MAX_TITLE_LENGTH,message = "Title must be less then 255 characters")
     private String title;
     @NotNull(message = "Genre cannot be blank")
     private String genre;
     @NotNull(message = "Release year cannot be blank")
-    @Min(value = 1895, message = "Release year must be between 1895 and 9999")
-    @Max(value = 9999, message = "Release year must be between 1895 and 9999")
+    @Min(value = Constants.MIN_MOVIE_RELEASE_YEAR, message = "Release year must be greater than "+Constants.MIN_MOVIE_RELEASE_YEAR)
+    @Max(value = Constants.MAX_MOVIE_RELEASE_YEAR, message = "Release year must less than "+Constants.MAX_MOVIE_RELEASE_YEAR)
     private Integer releaseYear;
     @NotNull(message = "Director id cannot be blank")
     @Positive

@@ -1,5 +1,6 @@
 package moviesApi.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -7,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
+import moviesApi.util.Constants;
 
 import java.time.LocalDate;
 
@@ -16,12 +18,13 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotNull(message = "First name cannot be blank")
-    @Size(min = 1, max = 64, message = "First name must be between 1 and 64 characters")
+    @Size(max = Constants.MAX_FIRST_NAME_LENGTH, message = "First name must be less then 64 characters")
     private String firstName;
     @NotNull(message = "Last name cannot be blank")
-    @Size(min = 1, max = 64, message = "Last name must be between 1 and 64 characters")
+    @Size(max = Constants.MAX_LAST_NAME_LENGTH, message = "Last name must be less then 64 characters")
     private String lastName;
     @Past(message = "Birth date must be in the past")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
     public Long getId() {
         return id;

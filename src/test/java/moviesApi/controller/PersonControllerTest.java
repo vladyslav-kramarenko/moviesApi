@@ -45,6 +45,7 @@ class PersonControllerTest {
     private PersonService personService;
     @Autowired
     private TestEntityManager entityManager;
+
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetAllPersons() {
@@ -58,21 +59,22 @@ class PersonControllerTest {
         List<Person> persons = personController.getAllPersons();
 
         // Verify the response
-        assertTrue(persons.size()>0);
+        assertFalse(persons.isEmpty());
         assertTrue(persons.contains(person1));
 
         // Delete the test persons
         personService.deleteById(person1.getId());
     }
+
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     public void testCreatePerson() {
         Person person = generatePerson();
 
-        ResponseEntity<Person> response = personController.createPerson(person);
+        ResponseEntity<?> response = personController.createPerson(person);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        Person savedPerson = response.getBody();
+        Person savedPerson = (Person) response.getBody();
         assert savedPerson != null;
         assertEquals(person.getFirstName(), savedPerson.getFirstName());
         assertEquals(person.getLastName(), savedPerson.getLastName());

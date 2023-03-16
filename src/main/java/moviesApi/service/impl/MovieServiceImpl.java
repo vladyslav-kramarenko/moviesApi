@@ -4,6 +4,7 @@ import io.micrometer.common.util.StringUtils;
 import moviesApi.domain.Movie;
 import moviesApi.repository.MovieRepository;
 import moviesApi.service.MovieService;
+import moviesApi.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,9 @@ public class MovieServiceImpl implements MovieService {
     }
 
     public boolean isValidMovie(Movie movie) throws IllegalArgumentException {
+        if (movie == null) {
+            throw new IllegalArgumentException("Movie cannot be empty");
+        }
         if (StringUtils.isBlank(movie.getTitle())) {
             throw new IllegalArgumentException("Title cannot be blank");
         }
@@ -76,6 +80,12 @@ public class MovieServiceImpl implements MovieService {
         }
         if (movie.getReleaseYear() == null || !Pattern.matches("^\\d{4}$", movie.getReleaseYear().toString())) {
             throw new IllegalArgumentException("Invalid release year format. Please use the format yyyy");
+        }
+        if (movie.getReleaseYear() < Constants.MIN_MOVIE_RELEASE_YEAR) {
+            throw new IllegalArgumentException("Release year cannot be greater than " + Constants.MIN_MOVIE_RELEASE_YEAR);
+        }
+        if (movie.getReleaseYear() < Constants.MAX_MOVIE_RELEASE_YEAR) {
+            throw new IllegalArgumentException("Release year cannot be less than " + Constants.MAX_MOVIE_RELEASE_YEAR);
         }
         if (movie.getDirectorId() == null) {
             throw new IllegalArgumentException("Director ID cannot be null");
