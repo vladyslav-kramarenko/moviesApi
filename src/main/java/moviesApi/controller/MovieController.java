@@ -1,6 +1,9 @@
 package moviesApi.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -43,6 +46,15 @@ public class MovieController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of movies"),
             @ApiResponse(responseCode = "204", description = "No movies found"),
             @ApiResponse(responseCode = "400", description = "Invalid sort property or sort order")
+    })
+    @Parameters({
+            @Parameter(name = "genre", description = "Filter movies by genre", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
+            @Parameter(name = "year", description = "Filter movies by release year", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "director_id", description = "Filter movies by director ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "actor_id", description = "Filter movies by actor ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "page", description = "Page number (starting from 0)", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "0")),
+            @Parameter(name = "size", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "10")),
+            @Parameter(name = "sort", description = "Sort movies by property and order (allowed properties: id, release_year, genre, director_id; allowed order types: asc, desc)", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "id,asc"))
     })
     public ResponseEntity<?> getAllMovies(
             @RequestParam(name = "genre", required = false) String genre,
