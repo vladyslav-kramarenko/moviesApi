@@ -19,7 +19,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     int deleteByMovieId(Long movieId);
 
-    List<Review> findAll();
+    List<Review> findAll(Sort sort);
 
     Review save(Review review);
 }

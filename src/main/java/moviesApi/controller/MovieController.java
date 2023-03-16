@@ -160,11 +160,17 @@ public class MovieController {
             @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content),
             @ApiResponse(responseCode = "404", description = "Movie not found")
     })
+    @Parameters({
+            @Parameter(name = "genre", description = "Filter movies by genre", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
+            @Parameter(name = "year", description = "Filter movies by release year", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "director_id", description = "Filter movies by director ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "actor_id", description = "Filter movies by actor ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+    })
     public long getCount(
             @RequestParam(name = "genre", required = false) String genre,
             @RequestParam(name = "year", required = false) Integer year,
-            @RequestParam(name = "director", required = false) Long directorId,
-            @RequestParam(name = "actor", required = false) Long actorId) {
+            @RequestParam(name = "director_id", required = false) Long directorId,
+            @RequestParam(name = "actor_id", required = false) Long actorId) {
         return movieService.count(genre, year, directorId, actorId);
     }
 

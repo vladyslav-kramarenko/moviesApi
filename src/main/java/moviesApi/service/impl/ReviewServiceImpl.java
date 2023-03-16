@@ -49,8 +49,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<Review> findAll() {
-        return reviewRepository.findAll();
+    public List<Review> findAll(Pageable pageable) {
+        Stream<Review> reviewStream = reviewRepository.findAll(pageable.getSort()).stream();
+
+        return reviewStream
+                .skip(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -58,7 +63,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (review.getRating() < Constants.MIN_REVIEW_RATING || review.getRating() > Constants.MAX_REVIEW_RATING) {
             throw new IllegalArgumentException("Rating should be between " + Constants.MIN_REVIEW_RATING + " and " + Constants.MAX_REVIEW_RATING);
         }
-        if(review.getText().length()>Constants.MAX_REVIEW_LENGTH){
+        if (review.getText().length() > Constants.MAX_REVIEW_LENGTH) {
             throw new IllegalArgumentException("Review size can't be greater than " + Constants.MAX_REVIEW_LENGTH);
         }
     }

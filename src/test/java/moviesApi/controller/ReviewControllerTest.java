@@ -82,7 +82,7 @@ class ReviewControllerTest {
         entityManager.flush();
 
         // Call the getAllReviews method
-        ResponseEntity<List<Review>> response = reviewController.getAllReviews();
+        ResponseEntity<List<Review>> response = reviewController.getAllReviews(0,50,new String[]{"id", "asc"});
 
         // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());

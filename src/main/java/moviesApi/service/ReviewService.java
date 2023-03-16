@@ -16,7 +16,7 @@ public interface ReviewService {
 
     void deleteById(Long reviewId);
 
-    List<Review> findAll();
+    List<Review> findAll(Pageable pageable);
 
     void validateReview(Review review);
 
