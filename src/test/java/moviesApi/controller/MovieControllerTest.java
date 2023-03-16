@@ -201,9 +201,8 @@ class MovieControllerTest {
     @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetReviewsByMovieId() {
         Long wrongId = -1L;
-
         //Check response when can't find a movie provided id
-        ResponseEntity<List<Review>> response = movieController.getReviewsByMovieId(wrongId);
+        ResponseEntity<?> response = movieController.getReviewsByMovieId(wrongId,0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
         Movie movie = generateMovie();
@@ -211,7 +210,7 @@ class MovieControllerTest {
         entityManager.flush();
 
         //Check response when a movie with provided id doesn't have any reviews
-        response = movieController.getReviewsByMovieId(movie.getId());
+        response = movieController.getReviewsByMovieId(movie.getId(),0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
         Review review1 = generateReview();
@@ -222,10 +221,11 @@ class MovieControllerTest {
         review2.setMovieId(movie.getId());
         reviewService.save(review2);
 
-        response = movieController.getReviewsByMovieId(movie.getId());
+        response = movieController.getReviewsByMovieId(movie.getId(),0, 50, new String[]{"id", "asc"});
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(2, response.getBody().size());
+        List<Review> reviews= (List<Review>) response.getBody();
+        assertEquals(2, reviews.size());
     }
 
 
@@ -315,9 +315,11 @@ class MovieControllerTest {
         entityManager.persist(testMovie);
         entityManager.flush();
 
+        List<Review>reviews = new ArrayList<>();
         // Create some reviews for the test movie
         for (int i = 0; i < 3; i++) {
-            reviewService.save(generateReview(testMovie.getId()));
+            Review review=generateReview(testMovie.getId());
+            reviews.add(reviewService.save(review));
         }
 
         // Call the deleteAllReviewsByMovieId method
@@ -328,6 +330,8 @@ class MovieControllerTest {
         assertEquals(3, Integer.parseInt(response.getHeaders().get("X-Deleted-Count").get(0)));
 
         // Check that the reviews have been deleted
-        assertEquals(0, reviewService.findByMovieId(testMovie.getId()).size());
+        for(Review review:reviews){
+            assertTrue(reviewService.findById(review.getId()).isEmpty());
+        }
     }
 }

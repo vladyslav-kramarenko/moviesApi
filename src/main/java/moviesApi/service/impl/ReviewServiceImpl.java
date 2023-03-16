@@ -4,11 +4,14 @@ import moviesApi.domain.Review;
 import moviesApi.repository.ReviewRepository;
 import moviesApi.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
@@ -25,8 +28,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<Review> findByMovieId(Long movieId) {
-        return reviewRepository.findByMovieId(movieId);
+    public List<Review> findByMovieId(Long movieId, Pageable pageable) {
+        Stream<Review> reviewStream = reviewRepository.findByMovieId(movieId,pageable.getSort()).stream();
+
+        return reviewStream
+                .skip(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -52,7 +60,6 @@ public class ReviewServiceImpl implements ReviewService {
             throw new IllegalArgumentException("Rating should be between 1.0 and 10.0");
         }
     }
-
 
     @Transactional
     @Override
