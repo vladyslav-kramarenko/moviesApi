@@ -56,7 +56,7 @@ class PersonControllerTest {
         entityManager.flush();
 
         // Call the getAllPersons method
-        List<Person> persons = personController.getAllPersons();
+        List<Person> persons = personController.getAllPersons(null, null, null, null, 0, 50, new String[]{"id", "asc"});
 
         // Verify the response
         assertFalse(persons.isEmpty());

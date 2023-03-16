@@ -1,6 +1,7 @@
 package moviesApi.repository;
 
 import moviesApi.domain.Person;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
     void deleteById(Long id);
 
-    List<Person> findAll();
+    List<Person> findAll(Sort sort);
 
     Person save(Person preson);
 }

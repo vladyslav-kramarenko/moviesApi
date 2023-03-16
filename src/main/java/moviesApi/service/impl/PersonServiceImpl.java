@@ -2,14 +2,18 @@ package moviesApi.service.impl;
 
 import io.micrometer.common.util.StringUtils;
 import moviesApi.domain.Person;
+import moviesApi.filter.PersonFilter;
 import moviesApi.repository.PersonRepository;
 import moviesApi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class PersonServiceImpl implements PersonService {
@@ -62,8 +66,34 @@ public class PersonServiceImpl implements PersonService {
         personRepository.deleteById(id);
     }
 
+    /**
+     * Returns a pageable list of persons filtered by the given parameters.
+     *
+     * @param personFilter the PersonFilter object containing the filter parameters
+     * @param pageable     the Pageable object containing pagination and sorting parameters
+     * @return a pageable list of persons filtered by the given parameters
+     */
     @Override
-    public List<Person> findAll() {
-        return personRepository.findAll();
+    public List<Person> findAll(PersonFilter personFilter, Pageable pageable) {
+        Stream<Person> personStream = personRepository.findAll(pageable.getSort()).stream();
+        return personFilter
+                .filter(personStream)
+                .skip(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the count of persons matching the given filter criteria.
+     *
+     * @param personFilter the filter criteria to apply
+     * @return the count of persons matching the filter criteria
+     * @throws IllegalArgumentException if the provided filter is invalid
+     */
+    @Override
+    public long count(PersonFilter personFilter) {
+        Stream<Person> personStream = personRepository.findAll().stream();
+        return personFilter
+                .filter(personStream).count();
     }
 }

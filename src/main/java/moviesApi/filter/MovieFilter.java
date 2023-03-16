@@ -1,4 +1,4 @@
-package moviesApi.util;
+package moviesApi.filter;
 
 import moviesApi.domain.Movie;
 

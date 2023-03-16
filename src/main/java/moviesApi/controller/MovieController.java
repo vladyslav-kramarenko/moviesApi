@@ -13,7 +13,7 @@ import moviesApi.domain.Movie;
 import moviesApi.domain.Review;
 import moviesApi.service.MovieService;
 import moviesApi.service.ReviewService;
-import moviesApi.util.MovieFilter;
+import moviesApi.filter.MovieFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

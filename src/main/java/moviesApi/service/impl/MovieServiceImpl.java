@@ -6,7 +6,7 @@ import moviesApi.domain.Movie;
 import moviesApi.repository.MovieRepository;
 import moviesApi.service.MovieService;
 import moviesApi.util.Constants;
-import moviesApi.util.MovieFilter;
+import moviesApi.filter.MovieFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
