@@ -31,6 +31,15 @@ public class PersonServiceImpl implements PersonService {
         return personRepository.findById(id);
     }
 
+    /**
+     * Validates a Person object by checking if the first name, last name,
+     * and birthdate are not blank or null and if the birthdate is not in the future.
+     *
+     * @param person the Person object to validate
+     * @return true if the Person object is valid
+     * @throws IllegalArgumentException if the first name, last name, or birthdate are blank or null,
+     *                                  or if the birthdate is in the future
+     */
     @Override
     public boolean validatePerson(Person person) throws IllegalArgumentException {
         if (StringUtils.isBlank(person.getFirstName())) {

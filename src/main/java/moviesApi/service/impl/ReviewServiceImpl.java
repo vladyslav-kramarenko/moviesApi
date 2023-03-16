@@ -28,6 +28,14 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.save(review);
     }
 
+    /**
+     * Returns a page of {@link Review} objects that belong to a specific movie ID.
+     *
+     * @param movieId  the ID of the movie to filter reviews by
+     * @param pageable the pagination information
+     * @return a list of {@link Review} objects filtered by the specified movie ID and sorted according to the provided sorting information in the {@code pageable} parameter
+     * @throws IllegalArgumentException if {@code movieId} is null or invalid
+     */
     @Override
     public List<Review> findByMovieId(Long movieId, Pageable pageable) {
         Stream<Review> reviewStream = reviewRepository.findByMovieId(movieId, pageable.getSort()).stream();
@@ -58,6 +66,14 @@ public class ReviewServiceImpl implements ReviewService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Validates the review based on the following criteria:
+     * rating should be between {@link Constants#MIN_REVIEW_RATING} and {@link Constants#MAX_REVIEW_RATING}
+     * review text should not be greater than {@link Constants#MAX_REVIEW_LENGTH} characters
+     *
+     * @param review the review to be validated
+     * @throws IllegalArgumentException if the review rating or text does not meet the validation criteria
+     */
     @Override
     public void validateReview(Review review) {
         if (review.getRating() < Constants.MIN_REVIEW_RATING || review.getRating() > Constants.MAX_REVIEW_RATING) {
