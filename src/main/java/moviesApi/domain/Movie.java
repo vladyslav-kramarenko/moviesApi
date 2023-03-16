@@ -1,6 +1,7 @@
 package moviesApi.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.util.List;
 
@@ -9,9 +10,17 @@ public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotNull(message = "Title cannot be blank")
+    @Size(min = 1, max = 255,message = "Title must be between 1 and 255 characters")
     private String title;
+    @NotNull(message = "Genre cannot be blank")
     private String genre;
+    @NotNull(message = "Release year cannot be blank")
+    @Min(value = 1895, message = "Release year must be between 1895 and 9999")
+    @Max(value = 9999, message = "Release year must be between 1895 and 9999")
     private Integer releaseYear;
+    @NotNull(message = "Director id cannot be blank")
+    @Positive
     private Long directorId;
     @ElementCollection
     @CollectionTable(name = "actor_ids")
