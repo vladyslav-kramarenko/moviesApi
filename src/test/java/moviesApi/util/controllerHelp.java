@@ -50,7 +50,7 @@ public class controllerHelp {
      */
     public static Review generateReview(Long movieId) {
         Review review = new Review();
-        review.setRating(5);
+        review.setRating(5f);
         review.setText("Test review text");
         review.setMovieId(movieId);
         review.setDateTime(LocalDateTime.now());

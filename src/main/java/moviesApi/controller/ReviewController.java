@@ -56,25 +56,31 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "No reviews found")
     })
     @Parameters({
+            @Parameter(name = "movie_id", description = "Filter reviews by movie ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "rating", description = "Filter reviews by rating", in = ParameterIn.QUERY, schema = @Schema(type = "float")),
+            @Parameter(name = "date_time", description = "Filter reviews by date/time", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "page", description = "Page number (starting from 0)", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "0")),
             @Parameter(name = "size", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "10")),
             @Parameter(
                     name = "sort",
-                    description = "Sort reviews by property and order (allowed properties: id, dateTime; allowed order types: asc, desc)",
+                    description = "Sort reviews by property and order (allowed properties: id, movieId,rating, dateTime; allowed order types: asc, desc)",
                     in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "dateTime,asc"
             ))
     })
     public ResponseEntity<List<Review>> getAllReviews(
+//            @RequestParam(name = "date_time", required = false) String dateTime,
+            @RequestParam(name = "movie_id", required = false) Long movieId,
+            @RequestParam(name = "rating", required = false) Float rating,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(name = "sort", defaultValue = "dateTime,asc") String[] sortParams
     ) {
-        String[] allowedProperties = {"id", "dateTime"};
+        String[] allowedProperties = {"id", "dateTime","rating","movieId"};
         List<Sort.Order> orders = createSort(sortParams, allowedProperties);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
 
-        List<Review> reviews = reviewService.findAll(pageable);
+        List<Review> reviews = reviewService.findAll(movieId, rating,pageable);
         if (reviews.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {

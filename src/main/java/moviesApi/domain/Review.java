@@ -17,7 +17,7 @@ public class Review {
     @NotNull
     @Min(value = Constants.MIN_REVIEW_RATING, message = "rating must be between " + Constants.MIN_REVIEW_RATING + " and " + Constants.MAX_REVIEW_RATING)
     @Max(value = Constants.MAX_REVIEW_RATING, message = "rating must be between " + Constants.MIN_REVIEW_RATING + " and " + Constants.MAX_REVIEW_RATING)
-    private float rating;
+    private Float rating;
     private LocalDateTime dateTime;
     @NotNull
     @Positive
@@ -41,11 +41,11 @@ public class Review {
         this.text = text;
     }
 
-    public float getRating() {
+    public Float getRating() {
         return rating;
     }
 
-    public void setRating(float rating) {
+    public void setRating(Float rating) {
         this.rating = rating;
     }
 

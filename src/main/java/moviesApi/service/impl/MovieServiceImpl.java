@@ -1,10 +1,13 @@
 package moviesApi.service.impl;
 
 import io.micrometer.common.util.StringUtils;
+
 import moviesApi.domain.Movie;
 import moviesApi.repository.MovieRepository;
 import moviesApi.service.MovieService;
 import moviesApi.util.Constants;
+import moviesApi.util.MovieFilter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -45,56 +48,34 @@ public class MovieServiceImpl implements MovieService {
     }
 
     /**
-     * Counts the number of movies that match the given criteria.
+     * Counts the number of movies that match the given filter criteria.
      *
-     * @param genre      the genre to filter by (can be null)
-     * @param year       the release year to filter by (can be null)
-     * @param directorId the ID of the director to filter by (can be null)
-     * @param actorId    the ID of the actor to filter by (can be null)
-     * @return the number of movies that match the given criteria
+     * @param movieFilter the filter criteria to apply to the movies
+     * @return the number of movies that match the filter criteria
      */
     @Override
-    public long count(String genre, Integer year, Long directorId, Long actorId) {
-        return filter(movieRepository.findAll().stream(), genre, year, directorId, actorId).count();
+    public long count(MovieFilter movieFilter) {
+        return movieFilter
+                .filter(movieRepository.findAll().stream())
+                .count();
     }
 
     /**
-     * Filters the movies by the given parameters and returns a pageable list of movies.
+     * Filters the list of movies based on the provided {@link MovieFilter} object and returns a pageable list of movies
+     * according to the provided pagination and sorting criteria.
      *
-     * @param genre      the genre of the movie to filter by
-     * @param year       the year of release of the movie to filter by
-     * @param directorId the id of the director of the movie to filter by
-     * @param actorId    the id of the actor of the movie to filter by
-     * @param pageable   the pageable object to use for pagination and sorting
-     * @return a pageable list of movies filtered by the given parameters
+     * @param movieFilter The {@link MovieFilter} object used to filter the movies.
+     * @param pageable    The {@link Pageable} object used for pagination and sorting.
+     * @return A pageable list of movies filtered according to the provided {@link MovieFilter} object and {@link Pageable} object.
      */
     @Override
-    public List<Movie> filterMovies(String genre, Integer year, Long directorId, Long actorId, Pageable pageable) {
-
+    public List<Movie> filterMovies(MovieFilter movieFilter, Pageable pageable) {
         Stream<Movie> movieStream = movieRepository.findAll(pageable.getSort()).stream();
-        movieStream = filter(movieStream, genre, year, directorId, actorId);
-
-        return movieStream
+        return movieFilter
+                .filter(movieStream)
                 .skip(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Filters the input stream of movies based on genre, year, director ID, and actor ID.
-     *
-     * @param input      the input stream of movies to be filtered
-     * @param genre      the genre to filter by, or null if no filtering is desired by genre
-     * @param year       the year to filter by, or null if no filtering is desired by year
-     * @param directorId the director ID to filter by, or null if no filtering is desired by director ID
-     * @param actorId    the actor ID to filter by, or null if no filtering is desired by actor ID
-     * @return a filtered stream of movies
-     */
-    private Stream<Movie> filter(Stream<Movie> input, String genre, Integer year, Long directorId, Long actorId) {
-        return input.filter(movie -> (genre == null || movie.getGenre().equalsIgnoreCase(genre)))
-                .filter(movie -> (year == null || movie.getReleaseYear().equals(year)))
-                .filter(movie -> (directorId == null || movie.getDirectorId().equals(directorId)))
-                .filter(movie -> (actorId == null || movie.getActorIds().contains(actorId)));
     }
 
     /**

@@ -28,24 +28,6 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.save(review);
     }
 
-    /**
-     * Returns a page of {@link Review} objects that belong to a specific movie ID.
-     *
-     * @param movieId  the ID of the movie to filter reviews by
-     * @param pageable the pagination information
-     * @return a list of {@link Review} objects filtered by the specified movie ID and sorted according to the provided sorting information in the {@code pageable} parameter
-     * @throws IllegalArgumentException if {@code movieId} is null or invalid
-     */
-    @Override
-    public List<Review> findByMovieId(Long movieId, Pageable pageable) {
-        Stream<Review> reviewStream = reviewRepository.findByMovieId(movieId, pageable.getSort()).stream();
-
-        return reviewStream
-                .skip(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .collect(Collectors.toList());
-    }
-
     @Override
     public Optional<Review> findById(Long id) {
         return reviewRepository.findById(id);
@@ -57,10 +39,12 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<Review> findAll(Pageable pageable) {
+    public List<Review> findAll(Long movieId, Float rating, Pageable pageable) {
         Stream<Review> reviewStream = reviewRepository.findAll(pageable.getSort()).stream();
 
         return reviewStream
+                .filter(review -> (movieId == null || review.getMovieId().equals(movieId)))
+                .filter(review -> (rating == null || review.getRating().equals(rating)))
                 .skip(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .collect(Collectors.toList());

@@ -13,6 +13,7 @@ import moviesApi.domain.Movie;
 import moviesApi.domain.Review;
 import moviesApi.service.MovieService;
 import moviesApi.service.ReviewService;
+import moviesApi.util.MovieFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,30 +50,41 @@ public class MovieController {
             @ApiResponse(responseCode = "400", description = "Invalid sort property or sort order")
     })
     @Parameters({
+            @Parameter(name = "title", description = "Filter movies by title", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "genre", description = "Filter movies by genre", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
-            @Parameter(name = "year", description = "Filter movies by release year", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
-            @Parameter(name = "director_id", description = "Filter movies by director ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
-            @Parameter(name = "actor_id", description = "Filter movies by actor ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "releaseYear", description = "Filter movies by release year", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "directorId", description = "Filter movies by director ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "actorIds", description = "Filter movies by actors ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "page", description = "Page number (starting from 0)", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "0")),
             @Parameter(name = "size", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "10")),
             @Parameter(name = "sort", description = "Sort movies by property and order (allowed properties: id, release_year, genre, director_id; allowed order types: asc, desc)", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "id,asc"))
     })
     public ResponseEntity<?> getAllMovies(
+            @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "genre", required = false) String genre,
-            @RequestParam(name = "year", required = false) Integer year,
-            @RequestParam(name = "director_id", required = false) Long directorId,
-            @RequestParam(name = "actor_id", required = false) Long actorId,
+            @RequestParam(name = "releaseYear", required = false) Integer year,
+            @RequestParam(name = "directorId", required = false) Long directorId,
+            @RequestParam(name = "actorIds", required = false) Long[] actorIds,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(name = "sort", defaultValue = "id,asc") String[] sortParams
     ) {
         try {
+            MovieFilter movieFilter = MovieFilter.builder()
+                    .withTitle(title)
+                    .withGenre(genre)
+                    .withYear(year)
+                    .withDirectorId(directorId)
+                    .withActorIds(actorIds)
+                    .build();
 
-            String[] allowedProperties = {"id", "release_year", "genre", "director_id"};
+            String[] allowedProperties = {"id", "title", "releaseYear", "genre", "director_id"};
             List<Sort.Order> orders = createSort(sortParams, allowedProperties);
 
             Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
-            List<Movie> movies = movieService.filterMovies(genre, year, directorId, actorId, pageable);
+
+            List<Movie> movies = movieService.filterMovies(movieFilter, pageable);
+
             if (movies.isEmpty()) {
                 return ResponseEntity.noContent().build();
             } else {
@@ -162,17 +174,28 @@ public class MovieController {
             @ApiResponse(responseCode = "404", description = "Movie not found")
     })
     @Parameters({
+            @Parameter(name = "title", description = "Filter movies by title", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "genre", description = "Filter movies by genre", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "year", description = "Filter movies by release year", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
-            @Parameter(name = "director_id", description = "Filter movies by director ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
-            @Parameter(name = "actor_id", description = "Filter movies by actor ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "directorId", description = "Filter movies by director ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "actorIds", description = "Filter movies by actors ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
     })
     public long getCount(
+            @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "genre", required = false) String genre,
             @RequestParam(name = "year", required = false) Integer year,
-            @RequestParam(name = "director_id", required = false) Long directorId,
-            @RequestParam(name = "actor_id", required = false) Long actorId) {
-        return movieService.count(genre, year, directorId, actorId);
+            @RequestParam(name = "directorId", required = false) Long directorId,
+            @RequestParam(name = "actorIds", required = false) Long[] actorIds) {
+
+        MovieFilter movieFilter = MovieFilter.builder()
+                .withTitle(title)
+                .withGenre(genre)
+                .withYear(year)
+                .withDirectorId(directorId)
+                .withActorIds(actorIds)
+                .build();
+
+        return movieService.count(movieFilter);
     }
 
     @PostMapping("/{movieId}/reviews")
@@ -207,6 +230,8 @@ public class MovieController {
     @ApiResponse(responseCode = "204", description = "No reviews found for the specified movie")
     @ApiResponse(responseCode = "404", description = "Movie not found")
     @Parameters({
+            @Parameter(name = "rating", description = "Filter reviews by rating", in = ParameterIn.QUERY, schema = @Schema(type = "float")),
+//            @Parameter(name = "date_time", description = "Filter reviews by date/time", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "page", description = "Page number (starting from 0)", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "0")),
             @Parameter(name = "size", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "10")),
             @Parameter(
@@ -217,20 +242,22 @@ public class MovieController {
     })
     public ResponseEntity<?> getReviewsByMovieId(
             @PathVariable Long movieId,
+//            @RequestParam(name = "date_time", required = false) String dateTime,
+            @RequestParam(name = "rating", required = false) Float rating,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(name = "sort", defaultValue = "dateTime,asc") String[] sortParams
     ) {
         {
             try {
-                String[] allowedProperties = {"id", "dateTime"};
+                String[] allowedProperties = {"id", "dateTime", "rating"};
                 List<Sort.Order> orders = createSort(sortParams, allowedProperties);
 
                 Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
                 Optional<Movie> movieOptional = movieService.findById(movieId);
 
                 if (movieOptional.isPresent()) {
-                    List<Review> reviews = reviewService.findByMovieId(movieId, pageable);
+                    List<Review> reviews = reviewService.findAll(movieId, rating, pageable);
                     if (reviews.isEmpty()) {
                         return ResponseEntity.noContent().build();
                     }
