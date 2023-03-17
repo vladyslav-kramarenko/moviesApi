@@ -1,6 +1,7 @@
 package moviesApi.filter;
 
 import moviesApi.domain.Person;
+import moviesApi.util.Constants;
 
 import java.time.LocalDate;
 import java.util.stream.Stream;
@@ -40,21 +41,33 @@ public class PersonFilter {
         private LocalDate birthDate;
 
         public PersonFilter.PersonFilterBuilder withId(Long id) {
+            if (id != null && id < 0) {
+                throw new IllegalArgumentException("ID should be positive");
+            }
             this.id = id;
             return this;
         }
 
         public PersonFilter.PersonFilterBuilder withFirstName(String firstName) {
+            if (firstName != null && firstName.length() > Constants.MAX_FIRST_NAME_LENGTH) {
+                throw new IllegalArgumentException("First Name must be under " + Constants.MAX_FIRST_NAME_LENGTH + " characters");
+            }
             this.firstName = firstName;
             return this;
         }
 
         public PersonFilter.PersonFilterBuilder withLastName(String lastName) {
+            if (lastName != null && lastName.length() > Constants.MAX_LAST_NAME_LENGTH) {
+                throw new IllegalArgumentException("Last Name must be under " + Constants.MAX_LAST_NAME_LENGTH + " characters");
+            }
             this.lastName = lastName;
             return this;
         }
 
         public PersonFilter.PersonFilterBuilder withBirthDate(LocalDate birthDate) {
+            if (birthDate != null && birthDate.isAfter(LocalDate.now())) {
+                throw new IllegalArgumentException("birth date must be in the past");
+            }
             this.birthDate = birthDate;
             return this;
         }

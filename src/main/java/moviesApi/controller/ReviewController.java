@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.ConstraintViolationException;
 import moviesApi.domain.Review;
 import moviesApi.filter.ReviewFilter;
 import moviesApi.service.ReviewService;
@@ -70,7 +71,7 @@ public class ReviewController {
                     in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "dateTime,asc"
             ))
     })
-    public ResponseEntity<List<Review>> getAllReviews(
+    public ResponseEntity<?> getAllReviews(
             @RequestParam(name = "dateTime", required = false) LocalDateTime dateTime,
             @RequestParam(name = "movieId", required = false) Long movieId,
             @RequestParam(name = "rating", required = false) Float rating,
@@ -79,24 +80,28 @@ public class ReviewController {
             @RequestParam(name = "size", defaultValue = "10", required = false) int size,
             @RequestParam(name = "sort", defaultValue = "id,asc", required = false) String[] sortParams
     ) {
-        String[] allowedProperties = {"id", "dateTime", "rating", "movieId"};
-        List<Sort.Order> orders = createSort(sortParams, allowedProperties);
+        try {
+            String[] allowedProperties = {"id", "dateTime", "rating", "movieId"};
+            List<Sort.Order> orders = createSort(sortParams, allowedProperties);
 
-        ReviewFilter reviewFilter = ReviewFilter.builder()
-                .withDateTime(dateTime)
-                .withId(movieId)
-                .withText(text)
-                .withRating(rating)
-                .build();
+            ReviewFilter reviewFilter = ReviewFilter.builder()
+                    .withDateTime(dateTime)
+                    .withId(movieId)
+                    .withText(text)
+                    .withRating(rating)
+                    .build();
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+            Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
 
-        List<Review> reviews = reviewService.findAll(reviewFilter, pageable);
+            List<Review> reviews = reviewService.findAll(reviewFilter, pageable);
 
-        if (reviews.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(reviews);
+            if (reviews.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            } else {
+                return ResponseEntity.ok(reviews);
+            }
+        }catch (IllegalArgumentException | ConstraintViolationException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

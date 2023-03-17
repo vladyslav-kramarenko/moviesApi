@@ -1,4 +1,5 @@
 package moviesApi.util;
+
 /**
  * This class contains constant values used throughout the application.
  */
@@ -9,6 +10,7 @@ public class Constants {
     public static final int MIN_MOVIE_RELEASE_YEAR = 1895;
     public static final int MAX_MOVIE_RELEASE_YEAR = 9999;
     public static final int MIN_REVIEW_RATING = 1;
+    public static final int MAX_GENRE_LENGTH = 45;
     public static final int MAX_REVIEW_RATING = 10;
     public static final int MAX_REVIEW_LENGTH = 255;
 }

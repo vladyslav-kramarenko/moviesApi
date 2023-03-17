@@ -19,14 +19,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static moviesApi.util.controllerHelp.generateReview;
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @Transactional
@@ -40,6 +46,9 @@ class ReviewControllerTest {
     @Autowired
     private ReviewController reviewController;
 
+
+    @Autowired
+    private MockMvc mockMvc;
     @Autowired
     private ReviewService reviewService;
 
@@ -82,14 +91,20 @@ class ReviewControllerTest {
         entityManager.flush();
 
         // test getAllReviews method with wrong movie id
-        Long wrongMovieId = -1L;
-        ResponseEntity<List<Review>> response = reviewController.getAllReviews(null, wrongMovieId, null, null, 0, 50, new String[]{"id", "asc"});
+        long wrongMovieId = -1L;
+        ResponseEntity<?> response = reviewController.getAllReviews(null, wrongMovieId, null, null, 0, 50, new String[]{"id", "asc"});
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        // test getAllReviews method with not existing movie id
+        wrongMovieId = 9999999L;
+        response = reviewController.getAllReviews(null, wrongMovieId, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
 
         // test getAllReviews method
         response = reviewController.getAllReviews(null, null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        List<Review> allReviews = response.getBody();
+        List<Review> allReviews = (List<Review>) response.getBody();
         assertNotNull(allReviews);
         assertTrue(allReviews.contains(testReview1));
 
@@ -159,10 +174,13 @@ class ReviewControllerTest {
         entityManager.flush();
 
         // test getCount method with wrong movie id
+        ResponseEntity<?> response = reviewController.getCount(LocalDateTime.of(3000, 10, 10, 10, 10), null, null, null);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        // test getCount method with wrong movie id
         Long wrongMovieId = -1L;
-        ResponseEntity<?> response = reviewController.getCount(null, wrongMovieId, null, null);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(0L, response.getBody());
+        response = reviewController.getCount(null, wrongMovieId, null, null);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         // test getAllReviews method
         response = reviewController.getCount(null, null, null, testReview1.getText());
@@ -171,5 +189,21 @@ class ReviewControllerTest {
 
         // Delete the test reviews
         reviewService.deleteById(testReview1.getId());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetCountInvalidParameter() throws Exception {
+        // Invalid parameter value: rating should be between 0 and 10
+        float invalidRating = 11;
+
+        // Build request parameters
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("rating", Float.toString(invalidRating));
+        params.add("movieId", "1");
+
+        // Perform GET request and expect a bad request response
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/reviews/count").params(params))
+                .andExpect(status().isBadRequest());
     }
 }

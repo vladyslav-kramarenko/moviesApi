@@ -276,7 +276,7 @@ public class MovieController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | ConstraintViolationException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

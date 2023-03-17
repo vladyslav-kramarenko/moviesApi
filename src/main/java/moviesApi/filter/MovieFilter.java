@@ -1,6 +1,7 @@
 package moviesApi.filter;
 
 import moviesApi.domain.Movie;
+import moviesApi.util.Constants;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -46,21 +47,37 @@ public class MovieFilter {
         private Long[] actorIds;
 
         public MovieFilterBuilder withTitle(String title) {
+            if (title != null && title.length() > Constants.MAX_TITLE_LENGTH) {
+                throw new IllegalArgumentException("First Name must be under " + Constants.MAX_FIRST_NAME_LENGTH + " characters");
+            }
             this.title = title;
             return this;
         }
 
         public MovieFilterBuilder withGenre(String genre) {
+            if (genre != null && genre.length() > Constants.MAX_GENRE_LENGTH) {
+                throw new IllegalArgumentException("Genre must be under " + Constants.MAX_GENRE_LENGTH + " characters");
+            }
             this.genre = genre;
             return this;
         }
 
         public MovieFilterBuilder withYear(Integer year) {
+            if (year != null && (year < Constants.MIN_MOVIE_RELEASE_YEAR || year > Constants.MAX_MOVIE_RELEASE_YEAR)) {
+                throw new IllegalArgumentException(
+                        "Release year should be bigger then " +
+                                Constants.MIN_MOVIE_RELEASE_YEAR +
+                                " and smaller than " +
+                                Constants.MAX_MOVIE_RELEASE_YEAR);
+            }
             this.year = year;
             return this;
         }
 
         public MovieFilterBuilder withDirectorId(Long directorId) {
+            if (directorId != null && directorId < 0) {
+                throw new IllegalArgumentException("director ID should be positive");
+            }
             this.directorId = directorId;
             return this;
         }
