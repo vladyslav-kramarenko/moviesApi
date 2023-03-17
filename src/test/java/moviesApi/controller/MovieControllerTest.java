@@ -29,8 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static moviesApi.util.controllerHelp.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @AutoConfigureTestEntityManager
@@ -61,18 +60,30 @@ class MovieControllerTest {
     @WithMockUser(username = "admin", roles = "ADMIN")
     public void testCreateMovie() {
         Movie movie = generateMovie();
-        movie.setReleaseYear(0);
 
+//        Test create movie with too small year
+        movie.setReleaseYear(0);
         ResponseEntity<?> response = movieController.createMovie(movie);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+//        Test create movie with too big year
+        movie.setReleaseYear(55555);
+        response = movieController.createMovie(movie);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         movie.setReleaseYear(2004);
 
+//        Test create movie with null directorId
+        movie.setDirectorId(null);
+        response = movieController.createMovie(movie);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+//        Test create movie
+        movie.setDirectorId(12L);
         response = movieController.createMovie(movie);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         Movie savedMovie = (Movie) response.getBody();
-        assert savedMovie != null;
+        assertNotNull(savedMovie);
         assertEquals(movie.getTitle(), savedMovie.getTitle());
         assertEquals(movie.getGenre(), savedMovie.getGenre());
         assertEquals(movie.getReleaseYear(), savedMovie.getReleaseYear());

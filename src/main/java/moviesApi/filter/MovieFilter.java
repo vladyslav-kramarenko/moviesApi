@@ -89,6 +89,6 @@ public class MovieFilter {
                 .filter(movie -> (genre == null || movie.getGenre().equalsIgnoreCase(genre)))
                 .filter(movie -> (year == null || movie.getReleaseYear().equals(year)))
                 .filter(movie -> (directorId == null || movie.getDirectorId().equals(directorId)))
-                .filter(movie -> (actorIds == null || movie.getActorIds().containsAll(new HashSet<>(Arrays.asList(actorIds)))));
+                .filter(movie -> (actorIds == null || new HashSet<>(movie.getActorIds()).containsAll(new HashSet<>(Arrays.asList(actorIds)))));
     }
 }
