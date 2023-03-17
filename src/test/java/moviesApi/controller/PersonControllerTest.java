@@ -77,7 +77,7 @@ class PersonControllerTest {
         entityManager.flush();
 
         // Call the getAllPersons method
-        long personCount = personController.getCount(null, person1.getFirstName(), null, null);
+        long personCount = personController.getCount(person1.getFirstName(), null, null);
 
         // Verify the response
         assertEquals(1, personCount);

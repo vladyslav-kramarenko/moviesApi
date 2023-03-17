@@ -90,14 +90,12 @@ public class PersonController {
             @Parameter(name = "birthDate", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
     })
     public Long getCount(
-            @RequestParam(name = "id", required = false) Long id,
-            @RequestParam(name = "firstName") String firstName,
-            @RequestParam(name = "lastName") String lastName,
-            @RequestParam(name = "birthDate") LocalDate birthDate
+            @RequestParam(name = "firstName", required = false) String firstName,
+            @RequestParam(name = "lastName", required = false) String lastName,
+            @RequestParam(name = "birthDate", required = false) LocalDate birthDate
     ) {
         PersonFilter personFilter = PersonFilter
                 .builder()
-                .withId(id)
                 .withFirstName(firstName)
                 .withLastName(lastName)
                 .withBirthDate(birthDate)

@@ -59,7 +59,7 @@ public class MovieController {
             @Parameter(name = "actorIds", description = "Filter movies by actors ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "page", description = "Page number (starting from 0)", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "0")),
             @Parameter(name = "size", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "10")),
-            @Parameter(name = "sort", description = "Sort movies by property and order (allowed properties: id, release_year, genre, director_id; allowed order types: asc, desc)", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "id,asc"))
+            @Parameter(name = "sort", description = "Sort movies by property and order (allowed properties: id, releaseYear, genre, directorId; allowed order types: asc, desc)", in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "id,asc"))
     })
     public ResponseEntity<?> getAllMovies(
             @RequestParam(name = "title", required = false) String title,
@@ -80,7 +80,7 @@ public class MovieController {
                     .withActorIds(actorIds)
                     .build();
 
-            String[] allowedProperties = {"id", "title", "releaseYear", "genre", "director_id"};
+            String[] allowedProperties = {"id", "title", "releaseYear", "genre", "directorId"};
             List<Sort.Order> orders = createSort(sortParams, allowedProperties);
 
             Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
