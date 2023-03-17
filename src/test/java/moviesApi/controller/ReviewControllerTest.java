@@ -82,7 +82,7 @@ class ReviewControllerTest {
         entityManager.flush();
 
         // Call the getAllReviews method
-        ResponseEntity<List<Review>> response = reviewController.getAllReviews(null,null,0,50,new String[]{"id", "asc"});
+        ResponseEntity<List<Review>> response = reviewController.getAllReviews(null, null, null, null, 0, 50, new String[]{"id", "asc"});
 
         // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -122,7 +122,7 @@ class ReviewControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
-    void getReviewsById(){
+    void getReviewsById() {
         Long wrongId = -1L;
         //test with wrong id
         ResponseEntity<Review> response = reviewController.getReviewById(wrongId);

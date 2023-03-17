@@ -1,9 +1,9 @@
 package moviesApi.service;
 
 import moviesApi.domain.Review;
+import moviesApi.filter.ReviewFilter;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +15,9 @@ public interface ReviewService {
 
     void deleteById(Long reviewId);
 
-    List<Review> findAll(Long movieId, Float rating, Pageable pageable);
+    List<Review> findAll(ReviewFilter reviewFilter, Pageable pageable);
+
+    long count(ReviewFilter reviewFilter);
 
     void validateReview(Review review);
 

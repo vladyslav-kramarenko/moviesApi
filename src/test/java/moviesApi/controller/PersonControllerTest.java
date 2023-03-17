@@ -68,6 +68,26 @@ class PersonControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetCount() {
+        // Create some test persons
+        Person person1 = generatePerson();
+        person1.setFirstName("testNameTest");
+
+        entityManager.persist(person1);
+        entityManager.flush();
+
+        // Call the getAllPersons method
+        long personCount = personController.getCount(null, person1.getFirstName(), null, null);
+
+        // Verify the response
+        assertEquals(1, personCount);
+
+        // Delete the test persons
+        personService.deleteById(person1.getId());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testCreatePerson() {
         Person person = generatePerson();
 

@@ -1,6 +1,7 @@
 package moviesApi.service.impl;
 
 import moviesApi.domain.Review;
+import moviesApi.filter.ReviewFilter;
 import moviesApi.repository.ReviewRepository;
 import moviesApi.service.ReviewService;
 import moviesApi.util.Constants;
@@ -37,17 +38,19 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteById(Long id) {
         reviewRepository.deleteById(id);
     }
-
     @Override
-    public List<Review> findAll(Long movieId, Float rating, Pageable pageable) {
+    public List<Review> findAll(ReviewFilter reviewFilter, Pageable pageable) {
         Stream<Review> reviewStream = reviewRepository.findAll(pageable.getSort()).stream();
-
-        return reviewStream
-                .filter(review -> (movieId == null || review.getMovieId().equals(movieId)))
-                .filter(review -> (rating == null || review.getRating().equals(rating)))
+        return reviewFilter.filter(reviewStream)
                 .skip(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public long count(ReviewFilter reviewFilter) {
+        Stream<Review> reviewStream = reviewRepository.findAll().stream();
+        return reviewFilter.filter(reviewStream).count();
     }
 
     /**

@@ -202,7 +202,7 @@ class MovieControllerTest {
     public void testGetReviewsByMovieId() {
         Long wrongId = -1L;
         //Check response when can't find a movie provided id
-        ResponseEntity<?> response = movieController.getReviewsByMovieId(wrongId, null, 0, 50, new String[]{"id", "asc"});
+        ResponseEntity<?> response = movieController.getReviewsByMovieId(wrongId, null,null,null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
         Movie movie = generateMovie();
@@ -210,7 +210,7 @@ class MovieControllerTest {
         entityManager.flush();
 
         //Check response when a movie with provided id doesn't have any reviews
-        response = movieController.getReviewsByMovieId(movie.getId(), null, 0, 50, new String[]{"id", "asc"});
+        response = movieController.getReviewsByMovieId(movie.getId(), null,null,null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
         Review review1 = generateReview();
@@ -221,7 +221,7 @@ class MovieControllerTest {
         review2.setMovieId(movie.getId());
         reviewService.save(review2);
 
-        response = movieController.getReviewsByMovieId(movie.getId(), null, 0, 50, new String[]{"id", "asc"});
+        response = movieController.getReviewsByMovieId(movie.getId(), null, null,null,0, 50, new String[]{"id", "asc"});
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Review> reviews = (List<Review>) response.getBody();

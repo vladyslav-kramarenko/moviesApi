@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import moviesApi.domain.Review;
+import moviesApi.filter.ReviewFilter;
 import moviesApi.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,6 +58,7 @@ public class ReviewController {
             @ApiResponse(responseCode = "404", description = "No reviews found")
     })
     @Parameters({
+            @Parameter(name = "rating", description = "Filter reviews by rating", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "movie_id", description = "Filter reviews by movie ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "rating", description = "Filter reviews by rating", in = ParameterIn.QUERY, schema = @Schema(type = "float")),
             @Parameter(name = "date_time", description = "Filter reviews by date/time", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
@@ -68,19 +71,28 @@ public class ReviewController {
             ))
     })
     public ResponseEntity<List<Review>> getAllReviews(
-//            @RequestParam(name = "date_time", required = false) String dateTime,
-            @RequestParam(name = "movie_id", required = false) Long movieId,
+            @RequestParam(name = "dateTime", required = false) LocalDateTime dateTime,
+            @RequestParam(name = "movieId", required = false) Long movieId,
             @RequestParam(name = "rating", required = false) Float rating,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size,
-            @RequestParam(name = "sort", defaultValue = "dateTime,asc") String[] sortParams
+            @RequestParam(name = "text", required = false) String text,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size,
+            @RequestParam(name = "sort", defaultValue = "id,asc", required = false) String[] sortParams
     ) {
-        String[] allowedProperties = {"id", "dateTime","rating","movieId"};
+        String[] allowedProperties = {"id", "dateTime", "rating", "movieId"};
         List<Sort.Order> orders = createSort(sortParams, allowedProperties);
+
+        ReviewFilter reviewFilter = ReviewFilter.builder()
+                .withDateTime(dateTime)
+                .withId(movieId)
+                .withText(text)
+                .withRating(rating)
+                .build();
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
 
-        List<Review> reviews = reviewService.findAll(movieId, rating,pageable);
+        List<Review> reviews = reviewService.findAll(reviewFilter, pageable);
+
         if (reviews.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
