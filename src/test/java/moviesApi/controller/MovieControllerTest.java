@@ -45,6 +45,8 @@ class MovieControllerTest {
 
     @Autowired
     private MovieController movieController;
+    @Autowired
+    private ReviewController reviewController;
 
     @Autowired
     private MovieService movieService;
@@ -192,9 +194,23 @@ class MovieControllerTest {
         Review review = generateReview();
         review.setMovieId(movie.getId());
 
-        ResponseEntity<?> response = movieController.addReview(movie.getId(), review);
+//        test adding review with wrong movieId
+        Long wrongMovieId = -1L;
+        ResponseEntity<?> response = movieController.addReview(wrongMovieId, review);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
+//        test adding review with wrong rating
+        review.setRating(13f);
+        response = movieController.addReview(movie.getId(), review);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+//        test adding review
+        review.setRating(6.5f);
+        response = movieController.addReview(movie.getId(), review);
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        Review savedReview = (Review) response.getBody();
+
+        reviewController.deleteReview(savedReview.getId());
     }
 
     @Test
@@ -202,7 +218,7 @@ class MovieControllerTest {
     public void testGetReviewsByMovieId() {
         Long wrongId = -1L;
         //Check response when can't find a movie provided id
-        ResponseEntity<?> response = movieController.getReviewsByMovieId(wrongId, null,null,null, 0, 50, new String[]{"id", "asc"});
+        ResponseEntity<?> response = movieController.getReviewsByMovieId(wrongId, null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
         Movie movie = generateMovie();
@@ -210,7 +226,7 @@ class MovieControllerTest {
         entityManager.flush();
 
         //Check response when a movie with provided id doesn't have any reviews
-        response = movieController.getReviewsByMovieId(movie.getId(), null,null,null, 0, 50, new String[]{"id", "asc"});
+        response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
         Review review1 = generateReview();
@@ -221,7 +237,7 @@ class MovieControllerTest {
         review2.setMovieId(movie.getId());
         reviewService.save(review2);
 
-        response = movieController.getReviewsByMovieId(movie.getId(), null, null,null,0, 50, new String[]{"id", "asc"});
+        response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id", "asc"});
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Review> reviews = (List<Review>) response.getBody();
@@ -241,34 +257,31 @@ class MovieControllerTest {
         entityManager.persist(movie3);
         entityManager.flush();
 
-        // Call the getAllMovies method with wrong sort order
+        // Test getAllMovies method with wrong sort order
         ResponseEntity<?> response = movieController.getAllMovies(null, null, null, null, null, 0, 50, new String[]{"id", "asc123"});
-
-        // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
-        // Call the getAllMovies method with wrong sort parameter
+        // Test getAllMovies method with not existing genre
+        String wrongGenre = "someWrongGenre";
+        response = movieController.getAllMovies(null, wrongGenre, null, null, null, 0, 50, new String[]{"id", "asc"});
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+
+        // Test getAllMovies method with wrong sort parameter
         response = movieController.getAllMovies(null, null, null, null, null, 0, 50, new String[]{"wrongValue", "asc"});
-
-        // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
-        // Call the getAllMovies method
-        response = movieController.getAllMovies(null, null, null, null, null, 0, 50, new String[]{"id", "asc"});
-
-        // Verify the response
+        // Call the getAllMovies method by part of title
+        response = movieController.getAllMovies("_test", null, null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         List<Movie> movies = (List<Movie>) response.getBody();
-        assertTrue(movies.size() >= 3);
+        assertTrue(movies.size() == 3);
         assertTrue(movies.contains(movie1));
         assertTrue(movies.contains(movie2));
         assertTrue(movies.contains(movie3));
 
-        // Call the getAllMovies method with a filter
+        // Call the getAllMovies method with genre filter
         response = movieController.getAllMovies(null, "Action", null, null, null, 0, 10, new String[]{"id", "asc"});
-
-        // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         movies = (List<Movie>) response.getBody();
@@ -322,8 +335,14 @@ class MovieControllerTest {
             reviews.add(reviewService.save(review));
         }
 
+        Long wrongId = -1L;
+        // Call the deleteAllReviewsByMovieId method with wrong movieId
+        ResponseEntity<?> response = movieController.deleteAllReviewsByMovieId(wrongId);
+        // Verify the response
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
         // Call the deleteAllReviewsByMovieId method
-        ResponseEntity<?> response = movieController.deleteAllReviewsByMovieId(testMovie.getId());
+        response = movieController.deleteAllReviewsByMovieId(testMovie.getId());
 
         // Verify the response
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());

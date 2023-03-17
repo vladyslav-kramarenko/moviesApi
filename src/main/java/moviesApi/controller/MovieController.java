@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.ConstraintViolationException;
 import moviesApi.domain.Movie;
 import moviesApi.domain.Review;
 import moviesApi.filter.ReviewFilter;
@@ -211,14 +212,14 @@ public class MovieController {
         if (movieOptional.isPresent()) {
             try {
                 reviewService.validateReview(review);
-            } catch (IllegalArgumentException e) {
-                ResponseEntity.badRequest().body(e.getMessage());
+                Movie movie = movieOptional.get();
+                review.setMovieId(movie.getId());
+                review.setDateTime(LocalDateTime.now());
+                Review savedReview = reviewService.save(review);
+                return ResponseEntity.ok(savedReview);
+            } catch (IllegalArgumentException | ConstraintViolationException e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
-            Movie movie = movieOptional.get();
-            review.setMovieId(movie.getId());
-            review.setDateTime(LocalDateTime.now());
-            Review savedReview = reviewService.save(review);
-            return ResponseEntity.ok(savedReview);
         } else {
             return ResponseEntity.notFound().build();
         }
