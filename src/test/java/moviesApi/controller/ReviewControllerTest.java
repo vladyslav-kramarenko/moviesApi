@@ -81,10 +81,13 @@ class ReviewControllerTest {
         entityManager.persist(testReview1);
         entityManager.flush();
 
-        // Call the getAllReviews method
-        ResponseEntity<List<Review>> response = reviewController.getAllReviews(null, null, null, null, 0, 50, new String[]{"id", "asc"});
+        // test getAllReviews method with wrong movie id
+        Long wrongMovieId = -1L;
+        ResponseEntity<List<Review>> response = reviewController.getAllReviews(null, wrongMovieId, null, null, 0, 50, new String[]{"id", "asc"});
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
-        // Verify the response
+        // test getAllReviews method
+        response = reviewController.getAllReviews(null, null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Review> allReviews = response.getBody();
         assertNotNull(allReviews);
@@ -108,10 +111,13 @@ class ReviewControllerTest {
         updatedReview.setRating(4f);
         updatedReview.setText("Updated review text");
 
-        // Call the updateReviewById method
-        ResponseEntity<Review> response = reviewController.updateReview(testReview.getId(), updatedReview);
+        // Call the updateReviewById method with wrong id
+        Long wrongId = -1L;
+        ResponseEntity<Review> response = reviewController.updateReview(wrongId, updatedReview);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
-        // Verify the response
+        // Call the updateReviewById method
+        response = reviewController.updateReview(testReview.getId(), updatedReview);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedReview.getRating(), response.getBody().getRating());
         assertEquals(updatedReview.getText(), response.getBody().getText());
@@ -140,5 +146,30 @@ class ReviewControllerTest {
 
         // Clean up test data
         reviewService.deleteById(testReview.getId());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetCount() {
+        // Create test reviews
+        Review testReview1 = generateReview();
+        testReview1.setText("test text for test");
+
+        entityManager.persist(testReview1);
+        entityManager.flush();
+
+        // test getCount method with wrong movie id
+        Long wrongMovieId = -1L;
+        ResponseEntity<?> response = reviewController.getCount(null, wrongMovieId, null, null);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(0L, response.getBody());
+
+        // test getAllReviews method
+        response = reviewController.getCount(null, null, null, testReview1.getText());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1L, response.getBody());
+
+        // Delete the test reviews
+        reviewService.deleteById(testReview1.getId());
     }
 }

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import moviesApi.domain.Person;
 import moviesApi.filter.PersonFilter;
@@ -122,7 +123,7 @@ public class PersonController {
             personService.validatePerson(person);
             Person savedPerson = personService.save(person);
             return ResponseEntity.ok(savedPerson);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | ConstraintViolationException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

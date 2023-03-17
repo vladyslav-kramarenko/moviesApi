@@ -108,7 +108,7 @@ public class MovieController {
             movieService.isValidMovie(movie);
             Movie savedMovie = movieService.save(movie);
             return ResponseEntity.ok(savedMovie);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | ConstraintViolationException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -134,10 +134,11 @@ public class MovieController {
             @ApiResponse(responseCode = "404", description = "Movie not found")
     })
     public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody Movie updatedMovie) {
-        Optional<Movie> movieOptional = movieService.findById(id);
-        if (movieOptional.isPresent()) {
-            Movie movie = movieOptional.get();
-            try {
+        try {
+            Optional<Movie> movieOptional = movieService.findById(id);
+            if (movieOptional.isPresent()) {
+                Movie movie = movieOptional.get();
+
                 movieService.isValidMovie(updatedMovie);
                 movie.setTitle(updatedMovie.getTitle());
                 movie.setGenre(updatedMovie.getGenre());
@@ -146,11 +147,11 @@ public class MovieController {
                 movie.setActorIds(updatedMovie.getActorIds());
                 movieService.save(movie);
                 return ResponseEntity.ok(movie);
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
+            } else {
+                return ResponseEntity.notFound().build();
             }
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException | ConstraintViolationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -208,20 +209,20 @@ public class MovieController {
             @ApiResponse(responseCode = "400", description = "Invalid review data")
     })
     public ResponseEntity<?> addReview(@PathVariable Long movieId, @RequestBody Review review) {
-        Optional<Movie> movieOptional = movieService.findById(movieId);
-        if (movieOptional.isPresent()) {
-            try {
+        try {
+            Optional<Movie> movieOptional = movieService.findById(movieId);
+            if (movieOptional.isPresent()) {
                 reviewService.validateReview(review);
                 Movie movie = movieOptional.get();
                 review.setMovieId(movie.getId());
                 review.setDateTime(LocalDateTime.now());
                 Review savedReview = reviewService.save(review);
                 return ResponseEntity.ok(savedReview);
-            } catch (IllegalArgumentException | ConstraintViolationException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
+            } else {
+                return ResponseEntity.notFound().build();
             }
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException | ConstraintViolationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -252,33 +253,31 @@ public class MovieController {
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(name = "sort", defaultValue = "dateTime,asc") String[] sortParams
     ) {
-        {
-            try {
-                String[] allowedProperties = {"id", "dateTime", "rating"};
-                List<Sort.Order> orders = createSort(sortParams, allowedProperties);
+        try {
+            String[] allowedProperties = {"id", "dateTime", "rating"};
+            List<Sort.Order> orders = createSort(sortParams, allowedProperties);
 
-                ReviewFilter reviewFilter = ReviewFilter.builder()
-                        .withMovieId(movieId)
-                        .withRating(rating)
-                        .withDateTime(dateTime)
-                        .withText(text)
-                        .build();
+            ReviewFilter reviewFilter = ReviewFilter.builder()
+                    .withMovieId(movieId)
+                    .withRating(rating)
+                    .withDateTime(dateTime)
+                    .withText(text)
+                    .build();
 
-                Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
-                Optional<Movie> movieOptional = movieService.findById(movieId);
+            Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+            Optional<Movie> movieOptional = movieService.findById(movieId);
 
-                if (movieOptional.isPresent()) {
-                    List<Review> reviews = reviewService.findAll(reviewFilter, pageable);
-                    if (reviews.isEmpty()) {
-                        return ResponseEntity.noContent().build();
-                    }
-                    return ResponseEntity.ok(reviews);
-                } else {
-                    return ResponseEntity.notFound().build();
+            if (movieOptional.isPresent()) {
+                List<Review> reviews = reviewService.findAll(reviewFilter, pageable);
+                if (reviews.isEmpty()) {
+                    return ResponseEntity.noContent().build();
                 }
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
+                return ResponseEntity.ok(reviews);
+            } else {
+                return ResponseEntity.notFound().build();
             }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

@@ -6,6 +6,7 @@ import moviesApi.domain.Review;
 import moviesApi.service.MovieService;
 
 import moviesApi.service.ReviewService;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
@@ -23,6 +24,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -227,14 +229,22 @@ class MovieControllerTest {
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetReviewsByMovieId() {
+        //test method with wrong movie id
         Long wrongId = -1L;
-        //Check response when can't find a movie provided id
         ResponseEntity<?> response = movieController.getReviewsByMovieId(wrongId, null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
         Movie movie = generateMovie();
         entityManager.persist(movie);
         entityManager.flush();
+
+        //test method with wrong dateTime parameter
+        response = movieController.getReviewsByMovieId(movie.getId(), LocalDateTime.of(1000,10,10,20,20), null, null, 0, 50, new String[]{"id", "asc"});
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+
+        //test method with wrong sort parameter
+        response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id123", "asc"});
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         //Check response when a movie with provided id doesn't have any reviews
         response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id", "asc"});
@@ -286,7 +296,7 @@ class MovieControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         List<Movie> movies = (List<Movie>) response.getBody();
-        assertTrue(movies.size() == 3);
+        Assert.assertEquals(3, movies.size());
         assertTrue(movies.contains(movie1));
         assertTrue(movies.contains(movie2));
         assertTrue(movies.contains(movie3));

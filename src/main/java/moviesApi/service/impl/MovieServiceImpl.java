@@ -28,11 +28,6 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public List<Movie> findAll() {
-        return movieRepository.findAll();
-    }
-
-    @Override
     public Optional<Movie> findById(Long id) {
         return movieRepository.findById(id);
     }

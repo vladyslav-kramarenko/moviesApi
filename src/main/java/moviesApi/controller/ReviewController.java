@@ -100,6 +100,38 @@ public class ReviewController {
         }
     }
 
+    @GetMapping("/count")
+    @Operation(summary = "Count reviews", description = "Retrieves the count of reviews based on provided filter parameters")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the count of reviews"),
+            @ApiResponse(responseCode = "400", description = "Invalid parameter value")
+    })
+    @Parameters({
+            @Parameter(name = "rating", description = "Filter reviews by rating", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "movieId", description = "Filter reviews by movie ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
+            @Parameter(name = "rating", description = "Filter reviews by rating", in = ParameterIn.QUERY, schema = @Schema(type = "float")),
+            @Parameter(name = "dateTime", description = "Filter reviews by date/time", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
+    })
+    public ResponseEntity<?> getCount(
+            @RequestParam(name = "dateTime", required = false) LocalDateTime dateTime,
+            @RequestParam(name = "movieId", required = false) Long movieId,
+            @RequestParam(name = "rating", required = false) Float rating,
+            @RequestParam(name = "text", required = false) String text
+    ) {
+        try {
+            ReviewFilter reviewFilter = ReviewFilter.builder()
+                    .withDateTime(dateTime)
+                    .withId(movieId)
+                    .withText(text)
+                    .withRating(rating)
+                    .build();
+
+            return ResponseEntity.ok(reviewService.count(reviewFilter));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("{id}")
     @Operation(summary = "View a review by ID")
     @ApiResponses(value = {

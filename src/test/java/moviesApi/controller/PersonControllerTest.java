@@ -90,8 +90,26 @@ class PersonControllerTest {
     @WithMockUser(username = "admin", roles = "ADMIN")
     public void testCreatePerson() {
         Person person = generatePerson();
-
+//        Test create user with wrong date of birth
+        person.setBirthDate(LocalDate.of(99999, 10, 10));
         ResponseEntity<?> response = personController.createPerson(person);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+//        Test create user with null first name
+        person.setBirthDate(LocalDate.of(2000, 10, 10));
+        person.setFirstName(null);
+        response = personController.createPerson(person);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+//        Test create user with too long last name
+        person.setFirstName("test");
+        person.setLastName("1234567890123456789012345678901234567890123456789012345678901234567890");
+        response = personController.createPerson(person);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+//        Test create user
+        person = generatePerson();
+        response = personController.createPerson(person);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         Person savedPerson = (Person) response.getBody();
