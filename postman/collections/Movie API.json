@@ -34,7 +34,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/movies?sort=id,desc",
+							"raw": "http://localhost:8080/api/movies",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -47,7 +47,7 @@
 							"query": [
 								{
 									"key": "genre",
-									"value": "action",
+									"value": "action,drama",
 									"type": "text",
 									"disabled": true
 								},
@@ -107,6 +107,115 @@
 								{
 									"key": "sort",
 									"value": "id,desc",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Count Movies",
+					"id": "c404793c-33bf-4d71-8fd2-d4c391250473",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin_password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin_name}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/count",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"count"
+							],
+							"query": [
+								{
+									"key": "year",
+									"value": "1999",
+									"disabled": true
+								},
+								{
+									"key": "title",
+									"value": "father",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "genre",
+									"value": "action",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "directorId",
+									"value": "6",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "actorIds",
+									"value": "3",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Summary",
+					"id": "321bdcdb-7812-480d-a098-1368f09b6998",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/summary?mode=RELEASE_YEAR",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"summary"
+							],
+							"query": [
+								{
+									"key": "mode",
+									"value": "GENRE",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "mode",
+									"value": "RELEASE_YEAR",
 									"type": "text"
 								}
 							]
@@ -294,46 +403,6 @@
 					"response": []
 				},
 				{
-					"name": "Delete a movie by id",
-					"id": "26b830f1-fb46-40e1-96f0-1cabdf6474c3",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "password",
-									"value": "{{admin_password}}",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "{{admin_name}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/movies/483",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"movies",
-								"483"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Delete reviews by movie id",
 					"id": "7fc9a306-2f68-40ea-ada8-82f93f43b2b5",
 					"protocolProfileBehavior": {
@@ -375,8 +444,8 @@
 					"response": []
 				},
 				{
-					"name": "Count Movies",
-					"id": "c404793c-33bf-4d71-8fd2-d4c391250473",
+					"name": "Delete a movie by id",
+					"id": "26b830f1-fb46-40e1-96f0-1cabdf6474c3",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -396,10 +465,10 @@
 								}
 							]
 						},
-						"method": "GET",
+						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/movies/count?year=1999",
+							"raw": "http://localhost:8080/api/movies/483",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -408,38 +477,7 @@
 							"path": [
 								"api",
 								"movies",
-								"count"
-							],
-							"query": [
-								{
-									"key": "year",
-									"value": "1999",
-									"type": "text"
-								},
-								{
-									"key": "title",
-									"value": "father",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "genre",
-									"value": "action",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "directorId",
-									"value": "6",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "actorIds",
-									"value": "3",
-									"type": "text",
-									"disabled": true
-								}
+								"483"
 							]
 						}
 					},
@@ -476,7 +514,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/persons",
+							"raw": "http://localhost:8080/api/persons?birthDate=1990-01-01",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -507,9 +545,7 @@
 								},
 								{
 									"key": "birthDate",
-									"value": "1990-01-01",
-									"type": "text",
-									"disabled": true
+									"value": "1990-01-01"
 								},
 								{
 									"key": "page",
@@ -545,6 +581,65 @@
 									"key": "sort",
 									"value": "id,desc",
 									"type": "text",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Count Persons",
+					"id": "418fa877-7816-40fc-881e-e954c6875614",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin_password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin_name}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/persons/count",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"persons",
+								"count"
+							],
+							"query": [
+								{
+									"key": "firstName",
+									"value": "john",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "lastName",
+									"value": "doe",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "birthDate",
+									"value": "1990-01-01",
 									"disabled": true
 								}
 							]
@@ -601,46 +696,6 @@
 					"response": []
 				},
 				{
-					"name": "Get a person by id",
-					"id": "76661f7b-fd0c-4ed3-8edf-f8e64d147ed5",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "password",
-									"value": "{{admin_password}}",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "{{admin_name}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/persons/164",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"persons",
-								"164"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Update a person by id",
 					"id": "1853c078-8350-4cf5-92d2-34f2bc8e7a37",
 					"protocolProfileBehavior": {
@@ -673,6 +728,46 @@
 								}
 							}
 						},
+						"url": {
+							"raw": "http://localhost:8080/api/persons/164",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"persons",
+								"164"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a person by id",
+					"id": "76661f7b-fd0c-4ed3-8edf-f8e64d147ed5",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin_password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin_name}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
 						"url": {
 							"raw": "http://localhost:8080/api/persons/164",
 							"protocol": "http",
@@ -724,65 +819,6 @@
 								"api",
 								"persons",
 								"7"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Count Persons",
-					"id": "418fa877-7816-40fc-881e-e954c6875614",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "password",
-									"value": "{{admin_password}}",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "{{admin_name}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/persons/count?birthDate=1990-01-01",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"persons",
-								"count"
-							],
-							"query": [
-								{
-									"key": "firstName",
-									"value": "john",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "lastName",
-									"value": "doe",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "birthDate",
-									"value": "1990-01-01",
-									"type": "text"
-								}
 							]
 						}
 					},
@@ -868,6 +904,72 @@
 								{
 									"key": "text",
 									"value": "and",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Count reviews",
+					"id": "72ecbe65-d54f-43a1-a28b-28ffa78d4c44",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{admin_password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{admin_name}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/reviews/count",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"reviews",
+								"count"
+							],
+							"query": [
+								{
+									"key": "text",
+									"value": "film",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "movieId",
+									"value": "6",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "dateTime",
+									"value": "2023-03-10T23:14:54",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "rating",
+									"value": "9",
 									"type": "text",
 									"disabled": true
 								}
@@ -1004,75 +1106,46 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "Count reviews",
-					"id": "72ecbe65-d54f-43a1-a28b-28ffa78d4c44",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "password",
-									"value": "{{admin_password}}",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "{{admin_name}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/reviews/count",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"api",
-								"reviews",
-								"count"
-							],
-							"query": [
-								{
-									"key": "text",
-									"value": "film",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "movieId",
-									"value": "6",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "dateTime",
-									"value": "2023-03-10T23:14:54",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "rating",
-									"value": "9",
-									"type": "text",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
 				}
 			],
 			"id": "753a58fb-ebdd-4c4c-a125-3172079abac7"
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "{{admin_name}}",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "{{admin_password}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "5db50135-5389-4de6-9ecf-1986c188302c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "33199104-c715-48a7-a3ce-d53d4210dd32",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }
