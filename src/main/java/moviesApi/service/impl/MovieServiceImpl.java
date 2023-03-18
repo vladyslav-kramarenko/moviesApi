@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -106,5 +105,35 @@ public class MovieServiceImpl implements MovieService {
             throw new IllegalArgumentException("At least one actor ID is required");
         }
         return true;
+    }
+
+    /**
+     * Returns a list of maps where each map contains the count of movies for a particular genre.
+     * The map key is the genre name and the value is the count of movies with that genre.
+     *
+     * @return a list of maps containing genre counts
+     */
+    public List<Map<String, Long>> getMovieCountByGenre() {
+        return movieRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Movie::getGenre, Collectors.counting()))
+                .entrySet().stream()
+                .map(entry -> Collections.singletonMap(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Map<Integer, Long>> getMovieCountByReleaseYear() {
+        return movieRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Movie::getReleaseYear, Collectors.counting()))
+                .entrySet().stream()
+                .map(entry -> Collections.singletonMap(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Map<Long, Long>> getMovieCountByDirectorID() {
+        return movieRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Movie::getDirectorId, Collectors.counting()))
+                .entrySet().stream()
+                .map(entry -> Collections.singletonMap(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 }

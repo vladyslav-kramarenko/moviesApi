@@ -295,4 +295,25 @@ public class MovieController {
         headers.add("X-Deleted-Count", String.valueOf(deleteCount));
         return ResponseEntity.noContent().headers(headers).build();
     }
+
+    @Operation(summary = "Get the number of movies by mode parameter")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the number of movies by mode parameter")
+    })
+    @GetMapping("/summary")
+    public ResponseEntity<?> getMovieCountByGenre(@RequestParam(name = "mode") String mode) {
+        try {
+            if (mode.equalsIgnoreCase("GENRE")) {
+                return ResponseEntity.ok(movieService.getMovieCountByGenre());
+            }
+            if (mode.equalsIgnoreCase("RELEASE_YEAR")) {
+                return ResponseEntity.ok(movieService.getMovieCountByReleaseYear());
+            } else {
+                return ResponseEntity.badRequest().body("invalid mode parameter");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

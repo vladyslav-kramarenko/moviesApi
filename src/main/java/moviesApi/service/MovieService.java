@@ -6,6 +6,7 @@ import moviesApi.filter.MovieFilter;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface MovieService {
@@ -21,4 +22,8 @@ public interface MovieService {
     List<Movie> filterMovies(MovieFilter movieFilter, Pageable pageable);
 
     boolean isValidMovie(Movie movie);
+
+    List<Map<String, Long>> getMovieCountByGenre();
+
+    List<Map<Integer, Long>> getMovieCountByReleaseYear();
 }
