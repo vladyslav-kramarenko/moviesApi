@@ -53,7 +53,7 @@ public class MovieController {
     })
     @Parameters({
             @Parameter(name = "title", description = "Filter movies by title", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
-            @Parameter(name = "genre", description = "Filter movies by genre", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
+            @Parameter(name = "genre", description = "Filter movies by genre", in = ParameterIn.QUERY, schema = @Schema(type = "string[]")),
             @Parameter(name = "releaseYear", description = "Filter movies by release year", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "directorId", description = "Filter movies by director ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "actorIds", description = "Filter movies by actors ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
@@ -63,7 +63,7 @@ public class MovieController {
     })
     public ResponseEntity<?> getAllMovies(
             @RequestParam(name = "title", required = false) String title,
-            @RequestParam(name = "genre", required = false) String genre,
+            @RequestParam(name = "genre", required = false) String[] genres,
             @RequestParam(name = "releaseYear", required = false) Integer year,
             @RequestParam(name = "directorId", required = false) Long directorId,
             @RequestParam(name = "actorIds", required = false) Long[] actorIds,
@@ -74,7 +74,7 @@ public class MovieController {
         try {
             MovieFilter movieFilter = MovieFilter.builder()
                     .withTitle(title)
-                    .withGenre(genre)
+                    .withGenre(genres)
                     .withYear(year)
                     .withDirectorId(directorId)
                     .withActorIds(actorIds)
@@ -178,21 +178,21 @@ public class MovieController {
     })
     @Parameters({
             @Parameter(name = "title", description = "Filter movies by title", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
-            @Parameter(name = "genre", description = "Filter movies by genre", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
+            @Parameter(name = "genre", description = "Filter movies by genre", in = ParameterIn.QUERY, schema = @Schema(type = "string[]")),
             @Parameter(name = "year", description = "Filter movies by release year", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "directorId", description = "Filter movies by director ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "actorIds", description = "Filter movies by actors ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
     })
     public long getCount(
             @RequestParam(name = "title", required = false) String title,
-            @RequestParam(name = "genre", required = false) String genre,
+            @RequestParam(name = "genre", required = false) String[] genres,
             @RequestParam(name = "year", required = false) Integer year,
             @RequestParam(name = "directorId", required = false) Long directorId,
             @RequestParam(name = "actorIds", required = false) Long[] actorIds) {
 
         MovieFilter movieFilter = MovieFilter.builder()
                 .withTitle(title)
-                .withGenre(genre)
+                .withGenre(genres)
                 .withYear(year)
                 .withDirectorId(directorId)
                 .withActorIds(actorIds)

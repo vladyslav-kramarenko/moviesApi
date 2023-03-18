@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class MovieFilter {
 
     private String title;
-    private String genre;
+    private String[] genres;
     private Integer year;
     private Long directorId;
     private Long[] actorIds;
@@ -23,8 +23,8 @@ public class MovieFilter {
         return title;
     }
 
-    public String getGenre() {
-        return genre;
+    public String[] getGenres() {
+        return genres;
     }
 
     public Integer getYear() {
@@ -41,7 +41,7 @@ public class MovieFilter {
 
     public static class MovieFilterBuilder {
         private String title;
-        private String genre;
+        private String[] genres;
         private Integer year;
         private Long directorId;
         private Long[] actorIds;
@@ -54,11 +54,8 @@ public class MovieFilter {
             return this;
         }
 
-        public MovieFilterBuilder withGenre(String genre) {
-            if (genre != null && genre.length() > Constants.MAX_GENRE_LENGTH) {
-                throw new IllegalArgumentException("Genre must be under " + Constants.MAX_GENRE_LENGTH + " characters");
-            }
-            this.genre = genre;
+        public MovieFilterBuilder withGenre(String[] genres) {
+            this.genres = genres;
             return this;
         }
 
@@ -94,7 +91,7 @@ public class MovieFilter {
 
     private MovieFilter(MovieFilterBuilder builder) {
         this.title = builder.title;
-        this.genre = builder.genre;
+        this.genres = builder.genres;
         this.year = builder.year;
         this.directorId = builder.directorId;
         this.actorIds = builder.actorIds;
@@ -103,7 +100,7 @@ public class MovieFilter {
     public Stream<Movie> filter(Stream<Movie> input) {
         return input
                 .filter(movie -> (title == null || movie.getTitle().toLowerCase().contains(title.toLowerCase())))
-                .filter(movie -> (genre == null || movie.getGenre().equalsIgnoreCase(genre)))
+                .filter(movie -> (genres == null || Arrays.stream(genres).anyMatch(x -> x.equalsIgnoreCase(movie.getGenre()))))
                 .filter(movie -> (year == null || movie.getReleaseYear().equals(year)))
                 .filter(movie -> (directorId == null || movie.getDirectorId().equals(directorId)))
                 .filter(movie -> (actorIds == null || new HashSet<>(movie.getActorIds()).containsAll(new HashSet<>(Arrays.asList(actorIds)))));

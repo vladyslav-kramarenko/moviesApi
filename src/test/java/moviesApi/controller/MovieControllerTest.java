@@ -239,7 +239,7 @@ class MovieControllerTest {
         entityManager.flush();
 
         //test method with wrong dateTime parameter
-        response = movieController.getReviewsByMovieId(movie.getId(), LocalDateTime.of(1000,10,10,20,20), null, null, 0, 50, new String[]{"id", "asc"});
+        response = movieController.getReviewsByMovieId(movie.getId(), LocalDateTime.of(1000, 10, 10, 20, 20), null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
         //test method with wrong sort parameter
@@ -284,7 +284,7 @@ class MovieControllerTest {
 
         // Test getAllMovies method with not existing genre
         String wrongGenre = "someWrongGenre";
-        response = movieController.getAllMovies(null, wrongGenre, null, null, null, 0, 50, new String[]{"id", "asc"});
+        response = movieController.getAllMovies(null, new String[]{wrongGenre}, null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
         // Test getAllMovies method with wrong sort parameter
@@ -302,7 +302,7 @@ class MovieControllerTest {
         assertTrue(movies.contains(movie3));
 
         // Call the getAllMovies method with genre filter
-        response = movieController.getAllMovies(null, "Action", null, null, null, 0, 10, new String[]{"id", "asc"});
+        response = movieController.getAllMovies(null, new String[]{"Action"}, null, null, null, 0, 10, new String[]{"id", "asc"});
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         movies = (List<Movie>) response.getBody();
@@ -326,19 +326,19 @@ class MovieControllerTest {
         entityManager.persist(movie5);
         entityManager.flush();
 
-        long count = movieController.getCount(null, "Comedy_test", null, null, null);
+        long count = movieController.getCount(null, new String[]{"Comedy_test"}, null, null, null);
         assertEquals(3, count);
 
-        count = movieController.getCount(null, "Comedy_test", 2002, null, null);
+        count = movieController.getCount(null, new String[]{"Comedy_test"}, 2002, null, null);
         assertEquals(1, count);
 
-        count = movieController.getCount(null, "Comedy_test", null, 2L, null);
+        count = movieController.getCount(null, new String[]{"Comedy_test"}, null, 2L, null);
         assertEquals(2, count);
 
-        count = movieController.getCount(null, "Comedy_test", null, null, new Long[]{3L});
+        count = movieController.getCount(null, new String[]{"Comedy_test"}, null, null, new Long[]{3L});
         assertEquals(3, count);
 
-        count = movieController.getCount(null, "Horror_test", null, null, null);
+        count = movieController.getCount(null, new String[]{"Horror_test"}, null, null, null);
         assertEquals(0, count);
     }
 
