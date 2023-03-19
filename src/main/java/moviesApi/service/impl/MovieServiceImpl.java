@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static moviesApi.util.Utilities.mapsToListOfSingletonMaps;
+
 @Service
 public class MovieServiceImpl implements MovieService {
     private final MovieRepository movieRepository;
@@ -114,26 +116,20 @@ public class MovieServiceImpl implements MovieService {
      * @return a list of maps containing genre counts
      */
     public List<Map<String, Long>> getMovieCountByGenre() {
-        return movieRepository.findAll().stream()
-                .collect(Collectors.groupingBy(Movie::getGenre, Collectors.counting()))
-                .entrySet().stream()
-                .map(entry -> Collections.singletonMap(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+        Map<String, Long> movieCount = movieRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Movie::getGenre, Collectors.counting()));
+        return mapsToListOfSingletonMaps(movieCount);
     }
 
     public List<Map<Integer, Long>> getMovieCountByReleaseYear() {
-        return movieRepository.findAll().stream()
-                .collect(Collectors.groupingBy(Movie::getReleaseYear, Collectors.counting()))
-                .entrySet().stream()
-                .map(entry -> Collections.singletonMap(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+        Map<Integer, Long> movieCount = movieRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Movie::getReleaseYear, Collectors.counting()));
+        return mapsToListOfSingletonMaps(movieCount);
     }
 
     public List<Map<Long, Long>> getMovieCountByDirectorID() {
-        return movieRepository.findAll().stream()
-                .collect(Collectors.groupingBy(Movie::getDirectorId, Collectors.counting()))
-                .entrySet().stream()
-                .map(entry -> Collections.singletonMap(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+        Map<Long, Long> movieCount = movieRepository.findAll().stream()
+                .collect(Collectors.groupingBy(Movie::getDirectorId, Collectors.counting()));
+        return mapsToListOfSingletonMaps(movieCount);
     }
 }
