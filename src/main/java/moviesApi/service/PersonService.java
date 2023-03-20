@@ -1,6 +1,7 @@
 package moviesApi.service;
 
 import moviesApi.domain.Person;
+import moviesApi.dto.PersonRecord;
 import moviesApi.filter.PersonFilter;
 import org.springframework.data.domain.Pageable;
 
@@ -19,4 +20,6 @@ public interface PersonService {
     boolean validatePerson(Person person);
 
     long count(PersonFilter personFilter);
+
+    List<PersonRecord> getSummary();
 }

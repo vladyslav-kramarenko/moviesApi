@@ -2,6 +2,7 @@ package moviesApi.service.impl;
 
 import io.micrometer.common.util.StringUtils;
 import moviesApi.domain.Person;
+import moviesApi.dto.PersonRecord;
 import moviesApi.filter.PersonFilter;
 import moviesApi.repository.PersonRepository;
 import moviesApi.service.PersonService;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,5 +97,28 @@ public class PersonServiceImpl implements PersonService {
         Stream<Person> personStream = personRepository.findAll().stream();
         return personFilter
                 .filter(personStream).count();
+    }
+
+    /**
+     * Retrieves a summary of each person record with the amount of movies they acted in and directed.
+     *
+     * @return a list of {@link PersonRecord} objects containing the person's ID, first name, last name, amount of movies acted in, and amount of movies directed.
+     */
+    @Override
+    public List<PersonRecord> getSummary() {
+        List<Object[]> results = personRepository.getUserRecords();
+        List<PersonRecord> userRecords = new ArrayList<>();
+
+        for (Object[] row : results) {
+            Long id = ((Integer) row[0]).longValue();
+            String firstName = (String) row[1];
+            String lastName = (String) row[2];
+            int asDirector = ((Number) row[3]).intValue();
+            int asActor = ((Number) row[4]).intValue();
+
+            PersonRecord personRecord = new PersonRecord(id, firstName, lastName, asActor, asDirector);
+            userRecords.add(personRecord);
+        }
+        return userRecords;
     }
 }

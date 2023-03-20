@@ -4,12 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import moviesApi.domain.Person;
+import moviesApi.dto.PersonRecord;
 import moviesApi.filter.PersonFilter;
 import moviesApi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,5 +158,20 @@ public class PersonController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/summary")
+    @Operation(summary = "Get summary of people", description = "Returns a list of user records with amount of movies directed and acted in")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved summary",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = PersonRecord.class)))
+    @ApiResponse(responseCode = "204", description = "No content")
+
+    public ResponseEntity<?> getSummary() {
+        List<PersonRecord> personSummary = personService.getSummary();
+        if (personSummary == null || personSummary.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(personSummary);
     }
 }
