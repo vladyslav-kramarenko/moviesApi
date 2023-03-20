@@ -55,7 +55,6 @@ public class controllerHelp {
         review.setMovieId(movieId);
         review.setDateTime(LocalDateTime.now());
         return review;
-
     }
 
     /**

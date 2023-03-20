@@ -5,6 +5,7 @@ import moviesApi.filter.ReviewFilter;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ReviewService {
@@ -22,4 +23,6 @@ public interface ReviewService {
     void validateReview(Review review);
 
     int deleteByMovieId(Long movieId);
+
+    List<Map<String, Long>>  getMovieCountByRating();
 }

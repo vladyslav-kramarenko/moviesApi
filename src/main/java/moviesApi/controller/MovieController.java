@@ -306,9 +306,13 @@ public class MovieController {
             if (mode.equalsIgnoreCase("GENRE")) {
                 return ResponseEntity.ok(movieService.getMovieCountByGenre());
             }
-            if (mode.equalsIgnoreCase("RELEASE_YEAR")) {
+            else if (mode.equalsIgnoreCase("RELEASE_YEAR")) {
                 return ResponseEntity.ok(movieService.getMovieCountByReleaseYear());
-            } else {
+            }
+            else if (mode.equalsIgnoreCase("RATING")) {
+                return ResponseEntity.ok(reviewService.getMovieCountByRating());
+            }
+            else {
                 return ResponseEntity.badRequest().body("invalid mode parameter");
             }
         } catch (Exception e) {
