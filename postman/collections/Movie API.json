@@ -648,6 +648,31 @@
 					"response": []
 				},
 				{
+					"name": "Summary",
+					"id": "25267f9c-0b14-41b2-8bd8-040c4c79dde3",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/persons/summary",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"persons",
+								"summary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Add a person",
 					"id": "9225cb02-56a6-4f81-9e09-fd472bfa260d",
 					"protocolProfileBehavior": {
