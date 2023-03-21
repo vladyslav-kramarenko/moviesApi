@@ -2,6 +2,7 @@ package moviesApi.service;
 
 import moviesApi.domain.Movie;
 
+import moviesApi.dto.MovieRecord;
 import moviesApi.filter.MovieFilter;
 import org.springframework.data.domain.Pageable;
 
@@ -12,6 +13,7 @@ import java.util.Optional;
 public interface MovieService {
 
     Optional<Movie> findById(Long id);
+    Optional<MovieRecord> findRecordById(Long id);
 
     Movie save(Movie movie);
 
@@ -21,7 +23,7 @@ public interface MovieService {
 
     long count(MovieFilter movieFilter);
 
-    List<Movie> filterMovies(MovieFilter movieFilter, Pageable pageable);
+    List<MovieRecord> filterMovies(MovieFilter movieFilter, Pageable pageable);
 
     List<Map<String, Long>> getMovieCountByGenre();
 

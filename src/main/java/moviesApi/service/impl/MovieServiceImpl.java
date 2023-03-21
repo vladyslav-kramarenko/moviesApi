@@ -3,8 +3,12 @@ package moviesApi.service.impl;
 import io.micrometer.common.util.StringUtils;
 
 import moviesApi.domain.Movie;
+import moviesApi.domain.Person;
+import moviesApi.dto.MovieRecord;
 import moviesApi.repository.MovieRepository;
 import moviesApi.service.MovieService;
+import moviesApi.service.PersonService;
+import moviesApi.service.ReviewService;
 import moviesApi.util.Constants;
 import moviesApi.filter.MovieFilter;
 
@@ -24,9 +28,24 @@ import static moviesApi.util.Utilities.validateId;
 public class MovieServiceImpl implements MovieService {
     private final MovieRepository movieRepository;
 
+    private final ReviewService reviewService;
+    private final PersonService personService;
+
     @Autowired
-    public MovieServiceImpl(MovieRepository movieRepository) {
+    public MovieServiceImpl(MovieRepository movieRepository, ReviewService reviewService, PersonService personService) {
         this.movieRepository = movieRepository;
+        this.reviewService = reviewService;
+        this.personService = personService;
+    }
+
+    @Override
+    public Optional<MovieRecord> findRecordById(Long id) {
+        Optional<Movie> movie = findById(id);
+        if (movie.isEmpty()) return Optional.of(null);
+        MovieRecord movieRecord = new MovieRecord(movie.get());
+        movieRecord.setDirector(personService.findById(movie.get().getDirectorId()).get());
+        movieRecord.setActors(getPersonsFromIds(movie.get().getActorIds()));
+        return Optional.of(movieRecord);
     }
 
     @Override
@@ -94,16 +113,30 @@ public class MovieServiceImpl implements MovieService {
      *
      * @param movieFilter The {@link MovieFilter} object used to filter the movies.
      * @param pageable    The {@link Pageable} object used for pagination and sorting.
-     * @return A pageable list of movies filtered according to the provided {@link MovieFilter} object and {@link Pageable} object.
+     * @return A pageable list of {@link MovieRecord} filtered according to the provided {@link MovieFilter} object and {@link Pageable} object.
      */
     @Override
-    public List<Movie> filterMovies(MovieFilter movieFilter, Pageable pageable) {
+    public List<MovieRecord> filterMovies(MovieFilter movieFilter, Pageable pageable) {
         Stream<Movie> movieStream = movieRepository.findAll(pageable.getSort()).stream();
-        return movieFilter
-                .filter(movieStream)
-                .skip(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .collect(Collectors.toList());
+        List<MovieRecord> movieRecords =
+                movieFilter
+                        .filter(movieStream)
+                        .skip(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .map(movie -> {
+                            MovieRecord movieRecord = new MovieRecord(movie);
+                            movieRecord.setDirector(personService.findById(movie.getDirectorId()).get());
+                            movieRecord.setActors(getPersonsFromIds(movie.getActorIds()));
+                            return movieRecord;
+                        })
+                        .collect(Collectors.toList());
+        return movieRecords;
+    }
+
+    private Set<Person> getPersonsFromIds(List<Long> personIds) {
+        return personIds.stream()
+                .map(actor -> personService.findById(actor).get())
+                .collect(Collectors.toSet());
     }
 
     /**

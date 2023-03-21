@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.ConstraintViolationException;
 import moviesApi.domain.Movie;
 import moviesApi.domain.Review;
+import moviesApi.dto.MovieRecord;
 import moviesApi.filter.ReviewFilter;
 import moviesApi.service.MovieService;
 import moviesApi.service.ReviewService;
@@ -85,7 +86,7 @@ public class MovieController {
 
             Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
 
-            List<Movie> movies = movieService.filterMovies(movieFilter, pageable);
+            List<MovieRecord> movies = movieService.filterMovies(movieFilter, pageable);
 
             if (movies.isEmpty()) {
                 return ResponseEntity.noContent().build();
@@ -117,11 +118,20 @@ public class MovieController {
             @ApiResponse(responseCode = "200", description = "Found the movie", content = {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Movie.class))
             }),
-            @ApiResponse(responseCode = "404", description = "Movie not found")
+            @ApiResponse(responseCode = "404", description = "Movie not found"),
+            @ApiResponse(responseCode = "400", description = "Incorrect Request")
     })
-    public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
-        Optional<Movie> movieOptional = movieService.findById(id);
-        return movieOptional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> getMovieById(@PathVariable Long id) {
+        try {
+            Optional<MovieRecord> movieOptional = movieService.findRecordById(id);
+            return movieOptional
+                    .map(ResponseEntity::ok)
+                    .orElseGet(
+                            () -> ResponseEntity.notFound().build()
+                    );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")

@@ -3,6 +3,7 @@ package moviesApi.controller;
 import moviesApi.SecurityConfig;
 import moviesApi.domain.Movie;
 import moviesApi.domain.Review;
+import moviesApi.dto.MovieRecord;
 import moviesApi.service.MovieService;
 
 import moviesApi.service.ReviewService;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static moviesApi.util.ControllerHelp.*;
 import static org.junit.Assert.*;
@@ -58,30 +60,39 @@ class MovieControllerTest {
     private TestEntityManager entityManager;
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testCreateMovieWithTooSmallYear() {
+        Movie movie = generateMovie();
+        movie.setReleaseYear(0);
+        ResponseEntity<?> response = movieController.createMovie(movie);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testCreateMovieWithTooBigYear() {
+        Movie movie = generateMovie();
+        movie.setReleaseYear(55555);
+        ResponseEntity<?> response = movieController.createMovie(movie);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testCreateMovieWithWrongDirectorId() {
+        Movie movie = generateMovie();
+        movie.setDirectorId(null);
+        ResponseEntity<?> response = movieController.createMovie(movie);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
 //    @Rollback(false)
     @WithMockUser(username = "admin", roles = "ADMIN")
     public void testCreateMovie() {
         Movie movie = generateMovie();
-
-//        Test create movie with too small year
-        movie.setReleaseYear(0);
-        ResponseEntity<?> response = movieController.createMovie(movie);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-
-//        Test create movie with too big year
-        movie.setReleaseYear(55555);
-        response = movieController.createMovie(movie);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-
-        movie.setReleaseYear(2004);
-
-//        Test create movie with null directorId
-        movie.setDirectorId(null);
-        response = movieController.createMovie(movie);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-//        Test create movie
         movie.setDirectorId(12L);
-        response = movieController.createMovie(movie);
+        ResponseEntity<?> response = movieController.createMovie(movie);
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         Movie savedMovie = (Movie) response.getBody();
@@ -94,10 +105,14 @@ class MovieControllerTest {
 
         // Call the getMovieById method
         response = movieController.getMovieById(savedMovie.getId());
-
+        MovieRecord movieRecord = (MovieRecord) response.getBody();
         // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(savedMovie, response.getBody());
+        assertEquals(savedMovie.getId(), movieRecord.getId());
+        assertEquals(savedMovie.getTitle(), movieRecord.getTitle());
+        assertEquals(savedMovie.getGenre(), movieRecord.getGenre());
+        assertEquals(savedMovie.getDirectorId(), movieRecord.getDirector().getId());
+        assertEquals(savedMovie.getReleaseYear(), movieRecord.getReleaseYear());
 
         ResponseEntity<?> deleteResponse = movieController.deleteMovie(savedMovie.getId());
         assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
@@ -113,11 +128,16 @@ class MovieControllerTest {
         entityManager.flush();
 
         // Call the getMovieById method
-        ResponseEntity<Movie> response = movieController.getMovieById(testMovie.getId());
+        ResponseEntity<MovieRecord> response = (ResponseEntity<MovieRecord>) movieController.getMovieById(testMovie.getId());
 
         // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(testMovie, response.getBody());
+        MovieRecord movieRecord = response.getBody();
+        assertEquals(testMovie.getId(), movieRecord.getId());
+        assertEquals(testMovie.getTitle(), movieRecord.getTitle());
+        assertEquals(testMovie.getGenre(), movieRecord.getGenre());
+        assertEquals(testMovie.getDirectorId(), movieRecord.getDirector().getId());
+        assertEquals(testMovie.getReleaseYear(), movieRecord.getReleaseYear());
 
         // Delete the test movie
         movieService.deleteById(testMovie.getId());
@@ -141,10 +161,10 @@ class MovieControllerTest {
         entityManager.flush();
 
         ResponseEntity<?> response = movieController.getMovieById(testMovie.getId());
-        testMovie = (Movie) response.getBody();
+        MovieRecord movieRecord = (MovieRecord) response.getBody();
         testMovie.setGenre("");
 
-        response = movieController.updateMovie(testMovie.getId(), testMovie);
+        response = movieController.updateMovie(movieRecord.getId(), testMovie);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -161,7 +181,11 @@ class MovieControllerTest {
         ResponseEntity<?> response = movieController.getMovieById(testMovie.getId());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(testMovie, response.getBody());
+        MovieRecord movieRecord = (MovieRecord) response.getBody();
+        assertEquals(testMovie.getId(), movieRecord.getId());
+        assertEquals(testMovie.getDirectorId(), movieRecord.getDirector().getId());
+        assertEquals(testMovie.getTitle(), movieRecord.getTitle());
+        assertEquals(testMovie.getGenre(), movieRecord.getGenre());
 
         List<Long> actorIds = new ArrayList<>(testMovie.getActorIds());
         testMovie.setTitle("Updated Movie Title");
@@ -344,19 +368,21 @@ class MovieControllerTest {
         ResponseEntity<?> response = movieController.getAllMovies("_test", null, null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<Movie> movies = (List<Movie>) response.getBody();
+        List<MovieRecord> movies = (List<MovieRecord>) response.getBody();
+        List<Long> movieIds = movies.stream().map(MovieRecord::getId).collect(Collectors.toList());
         Assert.assertEquals(3, movies.size());
-        assertTrue(movies.contains(movie1));
-        assertTrue(movies.contains(movie2));
-        assertTrue(movies.contains(movie3));
+        assertTrue(movieIds.contains(movie1.getId()));
+        assertTrue(movieIds.contains(movie2.getId()));
+        assertTrue(movieIds.contains(movie3.getId()));
 
         // Call the getAllMovies method with genre filter
         response = movieController.getAllMovies(null, new String[]{"Action"}, null, null, null, 0, 10, new String[]{"id", "asc"});
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        movies = (List<Movie>) response.getBody();
+        movies = (List<MovieRecord>) response.getBody();
+        movieIds = movies.stream().map(MovieRecord::getId).collect(Collectors.toList());
         assertTrue(movies.size() >= 1);
-        assertTrue(movies.contains(movie3));
+        assertTrue(movieIds.contains(movie3.getId()));
     }
 
     @Test

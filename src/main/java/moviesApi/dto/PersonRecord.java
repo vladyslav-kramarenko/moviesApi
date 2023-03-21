@@ -12,7 +12,7 @@ public class PersonRecord {
     String firstName;
     @NotNull(message = "Last name cannot be blank")
     @Size(max = Constants.MAX_LAST_NAME_LENGTH, message = "Last name must be less than 64 characters")
-    String LastName;
+    String lastName;
     int asActor;
 
     int asDirector;
@@ -22,7 +22,7 @@ public class PersonRecord {
     public PersonRecord(Long id, String firstName, String lastName, int asActor, int asDirector) {
         this.id = id;
         this.firstName = firstName;
-        LastName = lastName;
+        this.lastName = lastName;
         this.asActor = asActor;
         this.asDirector = asDirector;
     }
@@ -30,7 +30,7 @@ public class PersonRecord {
     public PersonRecord(Person person) {
         this.id = person.getId();
         this.firstName = person.getFirstName();
-        LastName = person.getLastName();
+        this.lastName = person.getLastName();
     }
 
     public Long getId() {
@@ -50,11 +50,11 @@ public class PersonRecord {
     }
 
     public String getLastName() {
-        return LastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-        LastName = lastName;
+        this.lastName = lastName;
     }
 
     public int getAsActor() {
@@ -72,5 +72,4 @@ public class PersonRecord {
     public void setAsDirector(int asDirector) {
         this.asDirector = asDirector;
     }
-
 }
