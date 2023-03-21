@@ -12,6 +12,8 @@ public class MovieFilter {
     private String title;
     private String[] genres;
     private Integer year;
+    private Integer fromYear;
+    private Integer toYear;
     private Long directorId;
     private Long[] actorIds;
 
@@ -31,6 +33,14 @@ public class MovieFilter {
         return year;
     }
 
+    public Integer getToYear() {
+        return toYear;
+    }
+
+    public Integer getFromYear() {
+        return fromYear;
+    }
+
     public Long getDirectorId() {
         return directorId;
     }
@@ -43,6 +53,8 @@ public class MovieFilter {
         private String title;
         private String[] genres;
         private Integer year;
+        private Integer fromYear;
+        private Integer toYear;
         private Long directorId;
         private Long[] actorIds;
 
@@ -71,6 +83,26 @@ public class MovieFilter {
             return this;
         }
 
+        public MovieFilterBuilder withFromYear(Integer fromYear) {
+            if (fromYear != null && (fromYear > Constants.MAX_MOVIE_RELEASE_YEAR)) {
+                throw new IllegalArgumentException(
+                        "Release year filter should be smaller than " +
+                                Constants.MAX_MOVIE_RELEASE_YEAR);
+            }
+            this.fromYear = fromYear;
+            return this;
+        }
+
+        public MovieFilterBuilder withToYear(Integer toYear) {
+            if (toYear != null && (toYear < Constants.MIN_MOVIE_RELEASE_YEAR)) {
+                throw new IllegalArgumentException(
+                        "Release year filter should be bigger then " +
+                                Constants.MIN_MOVIE_RELEASE_YEAR);
+            }
+            this.toYear = toYear;
+            return this;
+        }
+
         public MovieFilterBuilder withDirectorId(Long directorId) {
             if (directorId != null && directorId < 0) {
                 throw new IllegalArgumentException("director ID should be positive");
@@ -93,6 +125,8 @@ public class MovieFilter {
         this.title = builder.title;
         this.genres = builder.genres;
         this.year = builder.year;
+        this.fromYear = builder.fromYear;
+        this.toYear = builder.toYear;
         this.directorId = builder.directorId;
         this.actorIds = builder.actorIds;
     }
@@ -101,6 +135,8 @@ public class MovieFilter {
         return input
                 .filter(movie -> (title == null || movie.getTitle().toLowerCase().contains(title.toLowerCase())))
                 .filter(movie -> (genres == null || Arrays.stream(genres).anyMatch(x -> x.equalsIgnoreCase(movie.getGenre()))))
+                .filter(movie -> (fromYear == null || movie.getReleaseYear() >= fromYear))
+                .filter(movie -> (toYear == null || movie.getReleaseYear() <= toYear))
                 .filter(movie -> (year == null || movie.getReleaseYear().equals(year)))
                 .filter(movie -> (directorId == null || movie.getDirectorId().equals(directorId)))
                 .filter(movie -> (actorIds == null || new HashSet<>(movie.getActorIds()).containsAll(new HashSet<>(Arrays.asList(actorIds)))));

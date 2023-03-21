@@ -21,11 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +69,8 @@ public class MovieController {
             @RequestParam(name = "title", required = false) String title,
             @RequestParam(name = "genre", required = false) String[] genres,
             @RequestParam(name = "releaseYear", required = false) Integer year,
+            @RequestParam(name = "fromYear", required = false) Integer fromYear,
+            @RequestParam(name = "toYear", required = false) Integer toYear,
             @RequestParam(name = "directorId", required = false) Long directorId,
             @RequestParam(name = "actorIds", required = false) Long[] actorIds,
             @RequestParam(name = "page", defaultValue = DEFAULT_PAGE) int page,
@@ -78,6 +82,8 @@ public class MovieController {
                     .withTitle(title)
                     .withGenre(genres)
                     .withYear(year)
+                    .withFromYear(fromYear)
+                    .withToYear(toYear)
                     .withDirectorId(directorId)
                     .withActorIds(actorIds)
                     .build();
@@ -239,6 +245,8 @@ public class MovieController {
     public ResponseEntity<?> getReviewsByMovieId(
             @PathVariable Long movieId,
             @RequestParam(name = "dateTime", required = false) LocalDateTime dateTime,
+            @RequestParam(name = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(name = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
             @RequestParam(name = "rating", required = false) Float rating,
             @RequestParam(name = "text", required = false) String text,
             @RequestParam(name = "page", defaultValue = DEFAULT_PAGE) int page,
@@ -254,6 +262,8 @@ public class MovieController {
                         .withMovieId(movieId)
                         .withRating(rating)
                         .withDateTime(dateTime)
+//                        .withFromDate(fromDate)
+//                        .withToDate(toDate)
                         .withText(text)
                         .build();
 
