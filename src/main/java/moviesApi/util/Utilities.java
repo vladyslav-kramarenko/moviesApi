@@ -48,4 +48,11 @@ public class Utilities {
                 .map(entry -> Collections.singletonMap(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
+
+    public static boolean validateId(Long id) {
+        if (id != null && id >= 0) {
+            return true;
+        }
+        throw new IllegalArgumentException("Wrong ID: " + id);
+    }
 }

@@ -10,7 +10,8 @@ import java.util.Optional;
 
 public interface ReviewService {
 
-    Review save(Review review);
+    Review save(Long movieId, Review review);
+    Review update(Long id,Review review);
 
     Optional<Review> findById(Long reviewId);
 
@@ -24,5 +25,5 @@ public interface ReviewService {
 
     int deleteByMovieId(Long movieId);
 
-    List<Map<String, Long>>  getMovieCountByRating();
+    List<Map<String, Long>> getMovieCountByRating();
 }

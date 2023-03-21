@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static moviesApi.util.controllerHelp.generateReview;
+import static moviesApi.util.ControllerHelp.generateReview;
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -152,7 +152,7 @@ class ReviewControllerTest {
 
         // Create a test review
         Review testReview = generateReview();
-        reviewService.save(testReview);
+        reviewService.save(testReview.getMovieId(), testReview);
 
         response = reviewController.getReviewById(testReview.getId());
         // Verify the response

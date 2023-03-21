@@ -164,7 +164,7 @@ public class ReviewController {
             Review existingReview = existingReviewOptional.get();
             existingReview.setRating(review.getRating());
             existingReview.setText(review.getText());
-            Review updatedReview = reviewService.save(existingReview);
+            Review updatedReview = reviewService.update(id, existingReview);
             return ResponseEntity.ok(updatedReview);
         } else {
             return ResponseEntity.notFound().build();

@@ -13,7 +13,7 @@ import java.util.List;
  * The {@code controllerHelp} class provides utility methods for generating test objects such as {@code Movie}, {@code Person}, and {@code Review}.
  * It includes methods for generating movies, reviews, and persons with specific parameters.
  */
-public class controllerHelp {
+public class ControllerHelp {
     /**
      * Generates a movie object with sample parameters.
      *
@@ -72,5 +72,13 @@ public class controllerHelp {
         person.setLastName(lastName);
         person.setBirthDate(birthDate);
         return person;
+    }
+
+    public static String generateStringBySize(int size) {
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < size; i++) {
+            text.append(i);
+        }
+        return text.toString();
     }
 }

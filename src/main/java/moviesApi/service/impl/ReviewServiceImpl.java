@@ -11,11 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static moviesApi.util.Utilities.mapsToListOfSingletonMaps;
+import static moviesApi.util.Utilities.validateId;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
@@ -27,7 +29,19 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Review save(Review review) {
+    public Review save(Long movieId, Review review) {
+        validateId(movieId);
+        validateReview(review);
+        review.setMovieId(movieId);
+        review.setDateTime(LocalDateTime.now());
+        return reviewRepository.save(review);
+    }
+
+    @Override
+    public Review update(Long id, Review review) {
+        validateId(id);
+        validateReview(review);
+        review.setId(id);
         return reviewRepository.save(review);
     }
 
@@ -38,6 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteById(Long id) {
+        validateId(id);
         reviewRepository.deleteById(id);
     }
 
@@ -77,6 +92,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     @Override
     public int deleteByMovieId(Long movieId) {
+        validateId(movieId);
         return reviewRepository.deleteByMovieId(movieId);
     }
 
@@ -98,27 +114,22 @@ public class ReviewServiceImpl implements ReviewService {
      * @return a list of maps, where each map contains a singleton map with the rating group and the count of movies
      */
     public List<Map<String, Long>> getMovieCountByRating(List<Float[]> ratingGroupLimits) {
-        try {
-            Map<String, Long> ratingCounts = createRatingGroups(ratingGroupLimits);
-            Map<Long, List<Float>> movieRatings = getMoviesRatings(reviewRepository.findAll());
+        Map<String, Long> ratingCounts = createRatingGroups(ratingGroupLimits);
+        Map<Long, List<Float>> movieRatings = getMoviesRatings(reviewRepository.findAll());
 
-            for (Map.Entry<Long, List<Float>> entry : movieRatings.entrySet()) {
+        for (Map.Entry<Long, List<Float>> entry : movieRatings.entrySet()) {
 
-                double averageRating = entry.getValue().stream()
-                        .mapToDouble(Float::doubleValue)
-                        .average()
-                        .orElse(0.0);
-                String ratingGroup = getRatingGroup(averageRating, ratingGroupLimits);
+            double averageRating = entry.getValue().stream()
+                    .mapToDouble(Float::doubleValue)
+                    .average()
+                    .orElse(0.0);
+            String ratingGroup = getRatingGroup(averageRating, ratingGroupLimits);
 
-                ratingCounts.putIfAbsent(ratingGroup, 0L);
-                ratingCounts.compute(ratingGroup, (k, v) -> v + 1);
-            }
-
-            return mapsToListOfSingletonMaps(ratingCounts);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
+            ratingCounts.putIfAbsent(ratingGroup, 0L);
+            ratingCounts.compute(ratingGroup, (k, v) -> v + 1);
         }
+
+        return mapsToListOfSingletonMaps(ratingCounts);
     }
 
     /**

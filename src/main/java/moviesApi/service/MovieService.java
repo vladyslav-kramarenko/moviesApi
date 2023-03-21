@@ -15,13 +15,13 @@ public interface MovieService {
 
     Movie save(Movie movie);
 
+    Movie update(Long movieId, Movie movie);
+
     void deleteById(Long id);
 
     long count(MovieFilter movieFilter);
 
     List<Movie> filterMovies(MovieFilter movieFilter, Pageable pageable);
-
-    boolean isValidMovie(Movie movie);
 
     List<Map<String, Long>> getMovieCountByGenre();
 

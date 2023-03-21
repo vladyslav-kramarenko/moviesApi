@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static moviesApi.util.controllerHelp.*;
+import static moviesApi.util.ControllerHelp.*;
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -99,7 +99,7 @@ class MovieControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(savedMovie, response.getBody());
 
-        ResponseEntity<Void> deleteResponse = movieController.deleteMovie(savedMovie.getId());
+        ResponseEntity<?> deleteResponse = movieController.deleteMovie(savedMovie.getId());
         assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
     }
 
@@ -125,6 +125,32 @@ class MovieControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testUpdateMovieWithIncorrectId() {
+        Movie testMovie = generateMovie();
+        Long wrongId = -1L;
+
+        ResponseEntity<?> response = movieController.updateMovie(wrongId, testMovie);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testUpdateMovieWithIncorrectGenre() {
+        Movie testMovie = generateMovie();
+        entityManager.persist(testMovie);
+        entityManager.flush();
+
+        ResponseEntity<?> response = movieController.getMovieById(testMovie.getId());
+        testMovie = (Movie) response.getBody();
+        testMovie.setGenre("");
+
+        response = movieController.updateMovie(testMovie.getId(), testMovie);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testUpdateMovie() {
         // Create a test movie
         Movie testMovie = generateMovie();
@@ -138,23 +164,12 @@ class MovieControllerTest {
         assertEquals(testMovie, response.getBody());
 
         List<Long> actorIds = new ArrayList<>(testMovie.getActorIds());
-
         testMovie.setTitle("Updated Movie Title");
-        testMovie.setGenre("");
+        testMovie.setGenre("Updated Genre");
         testMovie.setReleaseYear(2001);
         testMovie.setDirectorId(2L);
         actorIds.add(3L);
         testMovie.setActorIds(actorIds);
-
-        Long wrongId = -1L;
-
-        response = movieController.updateMovie(wrongId, testMovie);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-
-        response = movieController.updateMovie(testMovie.getId(), testMovie);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-
-        testMovie.setGenre("Updated Genre");
 
         // Call the updateMovie method
         response = movieController.updateMovie(testMovie.getId(), testMovie);
@@ -172,27 +187,27 @@ class MovieControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testDeleteMovieWithWrongId() {
+        Long wrongId = -1L;
+        ResponseEntity<?> response = movieController.deleteMovie(wrongId);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+
+        wrongId = 9999999L;
+        response = movieController.deleteMovie(wrongId);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testDeleteMovieById() {
-        // Create a test movie
         Movie testMovie = generateMovie();
         entityManager.persist(testMovie);
         entityManager.flush();
 
-        Long wrongId = -1L;
+        ResponseEntity<?> response = movieController.deleteMovie(testMovie.getId());
 
-        // Call the deleteMovieById method with wrong id
-        ResponseEntity<Void> response = movieController.deleteMovie(wrongId);
-
-        // Verify the response
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-
-        // Call the deleteMovieById method
-        response = movieController.deleteMovie(testMovie.getId());
-
-        // Verify the response
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
-        // Check that the movie has been deleted
         Optional<Movie> movieOptional = movieService.findById(testMovie.getId());
         assertFalse(movieOptional.isPresent());
     }
@@ -210,7 +225,7 @@ class MovieControllerTest {
 //        test adding review with wrong movieId
         Long wrongMovieId = -1L;
         ResponseEntity<?> response = movieController.addReview(wrongMovieId, review);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
 //        test adding review with wrong rating
         review.setRating(13f);
@@ -228,43 +243,90 @@ class MovieControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
-    public void testGetReviewsByMovieId() {
-        //test method with wrong movie id
+    public void testGetReviewsByWrongMovieId() {
         Long wrongId = -1L;
         ResponseEntity<?> response = movieController.getReviewsByMovieId(wrongId, null, null, null, 0, 50, new String[]{"id", "asc"});
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
 
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetReviewsWithWrongDateFilter() {
         Movie movie = generateMovie();
         entityManager.persist(movie);
         entityManager.flush();
 
-        //test method with wrong dateTime parameter
-        response = movieController.getReviewsByMovieId(movie.getId(), LocalDateTime.of(1000, 10, 10, 20, 20), null, null, 0, 50, new String[]{"id", "asc"});
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        LocalDateTime wrongDate = LocalDateTime.of(1000, 10, 10, 20, 20);
 
-        //test method with wrong sort parameter
-        response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id123", "asc"});
+        ResponseEntity<?> response = movieController.getReviewsByMovieId(movie.getId(), wrongDate, null, null, 0, 50, new String[]{"id", "asc"});
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetReviewsWithWrongSortParam() {
+        Movie movie = generateMovie();
+        entityManager.persist(movie);
+        entityManager.flush();
+
+        ResponseEntity<?> response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id123", "asc"});
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
 
-        //Check response when a movie with provided id doesn't have any reviews
-        response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id", "asc"});
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetReviewsByMovieIdWithNoReviews() {
+        Movie movie = generateMovie();
+        entityManager.persist(movie);
+        entityManager.flush();
+
+        ResponseEntity<?> response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetReviewsByMovieId() {
+        Movie movie = generateMovie();
+        entityManager.persist(movie);
+        entityManager.flush();
 
         Review review1 = generateReview();
         review1.setMovieId(movie.getId());
-        reviewService.save(review1);
+        reviewService.save(movie.getId(), review1);
 
         Review review2 = generateReview();
         review2.setMovieId(movie.getId());
-        reviewService.save(review2);
+        reviewService.save(movie.getId(), review2);
 
-        response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id", "asc"});
+        ResponseEntity<?> response = movieController.getReviewsByMovieId(movie.getId(), null, null, null, 0, 50, new String[]{"id", "asc"});
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         List<Review> reviews = (List<Review>) response.getBody();
         assertEquals(2, reviews.size());
     }
 
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetAllMoviesWithWrongSortOrder() {
+        ResponseEntity<?> response = movieController.getAllMovies(null, null, null, null, null, 0, 50, new String[]{"id", "asc123"});
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetAllMoviesWithWrongGenre() {
+        String wrongGenre = "someWrongGenre";
+        ResponseEntity<?> response = movieController.getAllMovies(null, new String[]{wrongGenre}, null, null, null, 0, 50, new String[]{"id", "asc"});
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetAllMoviesWithWrongSortParameter() {
+        ResponseEntity<?> response = movieController.getAllMovies(null, null, null, null, null, 0, 50, new String[]{"wrongValue", "asc"});
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
@@ -278,21 +340,8 @@ class MovieControllerTest {
         entityManager.persist(movie3);
         entityManager.flush();
 
-        // Test getAllMovies method with wrong sort order
-        ResponseEntity<?> response = movieController.getAllMovies(null, null, null, null, null, 0, 50, new String[]{"id", "asc123"});
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-
-        // Test getAllMovies method with not existing genre
-        String wrongGenre = "someWrongGenre";
-        response = movieController.getAllMovies(null, new String[]{wrongGenre}, null, null, null, 0, 50, new String[]{"id", "asc"});
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-
-        // Test getAllMovies method with wrong sort parameter
-        response = movieController.getAllMovies(null, null, null, null, null, 0, 50, new String[]{"wrongValue", "asc"});
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-
         // Call the getAllMovies method by part of title
-        response = movieController.getAllMovies("_test", null, null, null, null, 0, 50, new String[]{"id", "asc"});
+        ResponseEntity<?> response = movieController.getAllMovies("_test", null, null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         List<Movie> movies = (List<Movie>) response.getBody();
@@ -326,19 +375,19 @@ class MovieControllerTest {
         entityManager.persist(movie5);
         entityManager.flush();
 
-        long count = movieController.getCount(null, new String[]{"Comedy_test"}, null, null, null);
+        long count = (long) movieController.getCount(null, new String[]{"Comedy_test"}, null, null, null).getBody();
         assertEquals(3, count);
 
-        count = movieController.getCount(null, new String[]{"Comedy_test"}, 2002, null, null);
+        count = (long) movieController.getCount(null, new String[]{"Comedy_test"}, 2002, null, null).getBody();
         assertEquals(1, count);
 
-        count = movieController.getCount(null, new String[]{"Comedy_test"}, null, 2L, null);
+        count = (long) movieController.getCount(null, new String[]{"Comedy_test"}, null, 2L, null).getBody();
         assertEquals(2, count);
 
-        count = movieController.getCount(null, new String[]{"Comedy_test"}, null, null, new Long[]{3L});
+        count = (long) movieController.getCount(null, new String[]{"Comedy_test"}, null, null, new Long[]{3L}).getBody();
         assertEquals(3, count);
 
-        count = movieController.getCount(null, new String[]{"Horror_test"}, null, null, null);
+        count = (long) movieController.getCount(null, new String[]{"Horror_test"}, null, null, null).getBody();
         assertEquals(0, count);
     }
 
@@ -353,14 +402,14 @@ class MovieControllerTest {
         // Create some reviews for the test movie
         for (int i = 0; i < 3; i++) {
             Review review = generateReview(testMovie.getId());
-            reviews.add(reviewService.save(review));
+            reviews.add(reviewService.save(testMovie.getId(), review));
         }
 
         Long wrongId = -1L;
         // Call the deleteAllReviewsByMovieId method with wrong movieId
         ResponseEntity<?> response = movieController.deleteAllReviewsByMovieId(wrongId);
         // Verify the response
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         // Call the deleteAllReviewsByMovieId method
         response = movieController.deleteAllReviewsByMovieId(testMovie.getId());
