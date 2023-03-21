@@ -41,7 +41,7 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public Optional<MovieRecord> findRecordById(Long id) {
         Optional<Movie> movie = findById(id);
-        if (movie.isEmpty()) return Optional.of(null);
+        if (movie.isEmpty()) return Optional.empty();
         MovieRecord movieRecord = new MovieRecord(movie.get());
         movieRecord.setDirector(personService.findById(movie.get().getDirectorId()).get());
         movieRecord.setActors(getPersonsFromIds(movie.get().getActorIds()));
@@ -223,16 +223,29 @@ public class MovieServiceImpl implements MovieService {
                 .collect(Collectors.groupingBy(Movie::getGenre, Collectors.counting()));
         return mapsToListOfSingletonMaps(movieCount);
     }
-
+    /**
+     * Returns a list of maps where each map contains the count of movies for a particular release year.
+     * The map key is the release year and the value is the count of movies with that release year.
+     *
+     * @return a list of maps containing release year counts
+     */
     public List<Map<Integer, Long>> getMovieCountByReleaseYear() {
         Map<Integer, Long> movieCount = movieRepository.findAll().stream()
                 .collect(Collectors.groupingBy(Movie::getReleaseYear, Collectors.counting()));
         return mapsToListOfSingletonMaps(movieCount);
     }
-
-    public List<Map<Long, Long>> getMovieCountByDirectorID() {
-        Map<Long, Long> movieCount = movieRepository.findAll().stream()
-                .collect(Collectors.groupingBy(Movie::getDirectorId, Collectors.counting()));
+    /**
+     * Returns a list of maps where each map contains the count of movies for each director.
+     * The map key is the director full name and the value is the count of movies with that director.
+     *
+     * @return a list of maps containing director counts
+     */
+    public List<Map<String, Long>> getMovieCountByDirectorID() {
+        Map<String, Long> movieCount = movieRepository.findAll().stream()
+                .collect(Collectors.groupingBy(movie -> {
+                    Person person = personService.findById(movie.getDirectorId()).get();
+                    return person.getFirstName() + " " + person.getLastName();
+                }, Collectors.counting()));
         return mapsToListOfSingletonMaps(movieCount);
     }
 }

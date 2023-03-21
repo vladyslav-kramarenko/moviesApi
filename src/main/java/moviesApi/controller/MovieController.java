@@ -302,6 +302,8 @@ public class MovieController {
                 return ResponseEntity.ok(movieService.getMovieCountByReleaseYear());
             } else if (mode.equalsIgnoreCase("RATING")) {
                 return ResponseEntity.ok(reviewService.getMovieCountByRating());
+            } else if (mode.equalsIgnoreCase("DIRECTOR")) {
+                return ResponseEntity.ok(movieService.getMovieCountByDirectorID());
             } else {
                 return ResponseEntity.badRequest().body("invalid mode parameter");
             }

@@ -28,4 +28,6 @@ public interface MovieService {
     List<Map<String, Long>> getMovieCountByGenre();
 
     List<Map<Integer, Long>> getMovieCountByReleaseYear();
+
+    List<Map<String, Long>> getMovieCountByDirectorID();
 }
