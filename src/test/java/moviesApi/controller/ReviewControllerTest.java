@@ -148,6 +148,8 @@ class ReviewControllerTest {
         Review updatedReview = new Review();
         updatedReview.setRating(4f);
         updatedReview.setText("Updated review text");
+        LocalDateTime localDateTime=LocalDateTime.now().minusDays(1);
+        updatedReview.setDateTime(localDateTime);
 
         // Call the updateReviewById method
         ResponseEntity<?> response = reviewController.updateReview(testReview.getId(), updatedReview);
@@ -155,6 +157,7 @@ class ReviewControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedReview.getRating(), recievedReview.getRating());
         assertEquals(updatedReview.getText(), recievedReview.getText());
+        assertEquals(updatedReview.getDateTime(), recievedReview.getDateTime());
 
         // Delete the test review
         reviewService.deleteById(testReview.getId());

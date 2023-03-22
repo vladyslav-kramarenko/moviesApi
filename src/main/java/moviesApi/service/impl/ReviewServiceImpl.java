@@ -41,7 +41,9 @@ public class ReviewServiceImpl implements ReviewService {
     public Optional<Review> update(Long id, Review review) {
         validateId(id);
         Optional<Review> existingReviewOptional = findById(id);
-        if (existingReviewOptional.isEmpty()) return Optional.empty();
+        if (existingReviewOptional.isEmpty()) {
+            return Optional.empty();
+        }
 
         Review existingReview = existingReviewOptional.get();
         if (review.getRating() != null) {
@@ -49,6 +51,9 @@ public class ReviewServiceImpl implements ReviewService {
         }
         if (review.getText() != null) {
             existingReview.setText(review.getText());
+        }
+        if (review.getDateTime() != null) {
+            existingReview.setDateTime(review.getDateTime());
         }
         return Optional.of(reviewRepository.save(existingReview));
     }
