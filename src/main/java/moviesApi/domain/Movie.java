@@ -3,7 +3,7 @@ package moviesApi.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import moviesApi.util.Constants;
-
+import org.springframework.context.annotation.Lazy;
 import java.util.List;
 
 @Entity
@@ -24,10 +24,13 @@ public class Movie {
     @Positive
     private Long directorId;
     @ElementCollection
+    @Lazy
     @CollectionTable(name = "actor_ids")
     @Column(name = "actor_id")
     private List<Long> actorIds;
 
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie")
+//    private Set<Review> reviews = new HashSet();
 
     public long getId() {
         return id;
