@@ -5,6 +5,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,10 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     void deleteById(Long id);
 
     List<Person> findAll(Sort sort);
+
+    List<Person> findByBirthDateAfter(LocalDate fromDate,Sort sort);
+    List<Person> findByBirthDateBefore(LocalDate toDate,Sort sort);
+    List<Person> findByBirthDateBetween(LocalDate fromDate, LocalDate toDate,Sort sort);
 
     Person save(Person preson);
 

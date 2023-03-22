@@ -15,11 +15,13 @@ public interface PersonService {
 
     List<Person> findAll(PersonFilter personFilter, Pageable pageable);
 
+    Person update(Long id, Person person);
+
     Optional<Person> findById(Long id);
 
     boolean validatePerson(Person person);
 
     long count(PersonFilter personFilter);
 
-    List<PersonRecord> getSummary();
+    List<PersonRecord> getSummary(PersonFilter personFilter,Pageable pageable);
 }

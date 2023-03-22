@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static moviesApi.util.Constants.*;
 import static moviesApi.util.Utilities.createSort;
 
 @RestController
@@ -41,44 +42,54 @@ public class PersonController {
     @GetMapping("")
     @Operation(summary = "Get all persons", description = "Get a list of all persons.")
     @ApiResponse(responseCode = "200", description = "List of persons retrieved successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid input parameters")
     @Parameters({
             @Parameter(name = "id", description = "ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "firstName", description = "First Name", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "lastName", description = "Last Name", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "birthDate", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
-            @Parameter(name = "page", description = "Page number (starting from 0)", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "0")),
-            @Parameter(name = "size", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "10")),
+            @Parameter(name = "birthDateFrom", description = "Birth Date From", in = ParameterIn.QUERY, schema = @Schema(type = "string", format = "date")),
+            @Parameter(name = "birthDateTo", description = "Birth Date To", in = ParameterIn.QUERY, schema = @Schema(type = "string", format = "date")),
+            @Parameter(name = "page", description = "Page number (starting from 0)", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = DEFAULT_PAGE)),
+            @Parameter(name = "size", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = DEFAULT_PAGE_SIZE)),
             @Parameter(
                     name = "sort",
                     description = "Sort reviews by property and order " +
                             "(allowed properties: id, firstName, lastName, birthDate; " +
                             "allowed order types: asc, desc)",
-                    in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = "dateTime,asc"
+                    in = ParameterIn.QUERY, schema = @Schema(type = "string", defaultValue = DEFAULT_SORT
             ))
     })
-    public List<Person> getAllPersons(
+    public ResponseEntity<?> getAllPersons(
             @RequestParam(name = "id", required = false) Long id,
             @RequestParam(name = "firstName", required = false) String firstName,
             @RequestParam(name = "lastName", required = false) String lastName,
             @RequestParam(name = "birthDate", required = false) LocalDate birthDate,
-            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(name = "size", defaultValue = "10", required = false) int size,
-            @RequestParam(name = "sort", defaultValue = "id,asc", required = false) String[] sortParams
+            @RequestParam(name = "birthDateFrom", required = false) LocalDate fromBirthDate,
+            @RequestParam(name = "birthDateTo", required = false) LocalDate toBirthDate,
+            @RequestParam(name = "page", defaultValue = DEFAULT_PAGE, required = false) int page,
+            @RequestParam(name = "size", defaultValue = DEFAULT_PAGE_SIZE, required = false) int size,
+            @RequestParam(name = "sort", defaultValue = DEFAULT_SORT, required = false) String[] sortParams
     ) {
-        PersonFilter personFilter = PersonFilter
-                .builder()
-                .withId(id)
-                .withFirstName(firstName)
-                .withLastName(lastName)
-                .withBirthDate(birthDate)
-                .build();
+        try {
+            PersonFilter personFilter = PersonFilter
+                    .builder()
+                    .withId(id)
+                    .withFirstName(firstName)
+                    .withLastName(lastName)
+                    .withBirthDate(birthDate)
+                    .withToBirthDate(toBirthDate)
+                    .withFromBirthDate(fromBirthDate)
+                    .build();
 
-        String[] allowedProperties = {"id", "firstName", "lastName", "birthDate"};
-        List<Sort.Order> orders = createSort(sortParams, allowedProperties);
+            List<Sort.Order> orders = createSort(sortParams, ALLOWED_PERSON_SORT_PROPERTIES);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+            Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
 
-        return personService.findAll(personFilter, pageable);
+            return ResponseEntity.ok(personService.findAll(personFilter, pageable));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/count")
@@ -86,24 +97,28 @@ public class PersonController {
     @ApiResponse(responseCode = "200", description = "The number of persons that match the given filters")
     @ApiResponse(responseCode = "400", description = "Invalid input parameters")
     @Parameters({
-            @Parameter(name = "id", description = "ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
-            @Parameter(name = "firstName", description = "First Name", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
-            @Parameter(name = "lastName", description = "Last Name", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
-            @Parameter(name = "birthDate", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
+            @Parameter(name = "id", description = "ID", in = ParameterIn.QUERY, schema = @Schema(type = "Integer")),
+            @Parameter(name = "firstName", description = "First Name", in = ParameterIn.QUERY, schema = @Schema(type = "String")),
+            @Parameter(name = "lastName", description = "Last Name", in = ParameterIn.QUERY, schema = @Schema(type = "String")),
+            @Parameter(name = "birthDate", description = "Birth date", in = ParameterIn.QUERY, schema = @Schema(type = "Date")),
     })
-    public Long getCount(
+    public ResponseEntity<?> getCount(
             @RequestParam(name = "firstName", required = false) String firstName,
             @RequestParam(name = "lastName", required = false) String lastName,
             @RequestParam(name = "birthDate", required = false) LocalDate birthDate
     ) {
-        PersonFilter personFilter = PersonFilter
-                .builder()
-                .withFirstName(firstName)
-                .withLastName(lastName)
-                .withBirthDate(birthDate)
-                .build();
+        try {
+            PersonFilter personFilter = PersonFilter
+                    .builder()
+                    .withFirstName(firstName)
+                    .withLastName(lastName)
+                    .withBirthDate(birthDate)
+                    .build();
 
-        return personService.count(personFilter);
+            return ResponseEntity.ok(personService.count(personFilter));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
@@ -131,32 +146,25 @@ public class PersonController {
     @PutMapping("/{id}")
     @Operation(summary = "Update an existing person", description = "Update an existing person with the given information.")
     @ApiResponse(responseCode = "200", description = "Person updated successfully")
-    @ApiResponse(responseCode = "404", description = "Person not found")
-    public ResponseEntity<Person> updatePerson(@PathVariable Long id, @RequestBody Person person) {
-        Optional<Person> existingPersonOptional = personService.findById(id);
-        if (existingPersonOptional.isPresent()) {
-            Person existingPerson = existingPersonOptional.get();
-            existingPerson.setFirstName(person.getFirstName());
-            existingPerson.setLastName(person.getLastName());
-            existingPerson.setBirthDate(person.getBirthDate());
-            Person updatedPerson = personService.save(existingPerson);
-            return ResponseEntity.ok(updatedPerson);
-        } else {
-            return ResponseEntity.notFound().build();
+    @ApiResponse(responseCode = "400", description = "Invalid input parameters")
+    public ResponseEntity<?> updatePerson(@PathVariable Long id, @RequestBody Person person) {
+        try {
+            return ResponseEntity.ok(personService.update(id, person));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a person by id", description = "Delete a person by their id.")
     @ApiResponse(responseCode = "204", description = "Person deleted successfully")
-    @ApiResponse(responseCode = "404", description = "Person not found")
-    public ResponseEntity<Void> deletePerson(@PathVariable Long id) {
-        Optional<Person> personOptional = personService.findById(id);
-        if (personOptional.isPresent()) {
+    @ApiResponse(responseCode = "400", description = "Invalid input parameters")
+    public ResponseEntity<?> deletePerson(@PathVariable Long id) {
+        try {
             personService.deleteById(id);
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -166,9 +174,25 @@ public class PersonController {
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = PersonRecord.class)))
     @ApiResponse(responseCode = "204", description = "No content")
-
-    public ResponseEntity<?> getSummary() {
-        List<PersonRecord> personSummary = personService.getSummary();
+    @Parameters({
+            @Parameter(name = "firstName", description = "First Name", in = ParameterIn.QUERY, schema = @Schema(type = "String")),
+            @Parameter(name = "lastName", description = "Last Name", in = ParameterIn.QUERY, schema = @Schema(type = "String")),
+            @Parameter(name = "page", description = "Page number (starting from 0)", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = DEFAULT_PAGE)),
+            @Parameter(name = "size", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = DEFAULT_PAGE_SIZE))
+    })
+    public ResponseEntity<?> getSummary(
+            @RequestParam(name = "firstName", required = false) String firstName,
+            @RequestParam(name = "lastName", required = false) String lastName,
+            @RequestParam(name = "page", defaultValue = DEFAULT_PAGE, required = false) int page,
+            @RequestParam(name = "size", defaultValue = DEFAULT_PAGE_SIZE, required = false) int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        PersonFilter personFilter = PersonFilter
+                .builder()
+                .withFirstName(firstName)
+                .withLastName(lastName)
+                .build();
+        List<PersonRecord> personSummary = personService.getSummary(personFilter, pageable);
         if (personSummary == null || personSummary.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

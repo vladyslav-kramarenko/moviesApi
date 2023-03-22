@@ -20,4 +20,5 @@ public class Constants {
 
     public static final String[] ALLOWED_REVIEW_SORT_PROPERTIES = {"id", "dateTime", "rating"};
     public static final String[] ALLOWED_MOVIE_SORT_PROPERTIES = {"id", "title", "releaseYear", "genre", "directorId"};
+    public static final String[] ALLOWED_PERSON_SORT_PROPERTIES = {"id", "firstName", "lastName", "birthDate"};
 }

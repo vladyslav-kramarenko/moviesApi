@@ -1,6 +1,7 @@
 package moviesApi.filter;
 
 import moviesApi.domain.Person;
+import moviesApi.dto.PersonRecord;
 import moviesApi.util.Constants;
 
 import java.time.LocalDate;
@@ -12,6 +13,8 @@ public class PersonFilter {
     private String firstName;
     private String lastName;
     private LocalDate birthDate;
+    private LocalDate fromBirthDate;
+    private LocalDate toBirthDate;
 
     public Long getId() {
         return id;
@@ -29,6 +32,13 @@ public class PersonFilter {
         return birthDate;
     }
 
+    public LocalDate getFromBirthDate() {
+        return fromBirthDate;
+    }
+
+    public LocalDate getToBirthDate() {
+        return toBirthDate;
+    }
 
     public static PersonFilter.PersonFilterBuilder builder() {
         return new PersonFilter.PersonFilterBuilder();
@@ -39,6 +49,8 @@ public class PersonFilter {
         private String firstName;
         private String lastName;
         private LocalDate birthDate;
+        private LocalDate toBirthDate;
+        private LocalDate fromBirthDate;
 
         public PersonFilter.PersonFilterBuilder withId(Long id) {
             if (id != null && id < 0) {
@@ -65,10 +77,25 @@ public class PersonFilter {
         }
 
         public PersonFilter.PersonFilterBuilder withBirthDate(LocalDate birthDate) {
-            if (birthDate != null && birthDate.isAfter(LocalDate.now())) {
-                throw new IllegalArgumentException("birth date must be in the past");
+            if (birthDate != null){
+                if(birthDate.isAfter(LocalDate.now())) {
+                    throw new IllegalArgumentException("birth date must be in the past");
+                }
             }
             this.birthDate = birthDate;
+            return this;
+        }
+
+        public PersonFilter.PersonFilterBuilder withFromBirthDate(LocalDate fromBirthDate) {
+            if (fromBirthDate != null && fromBirthDate.isAfter(LocalDate.now())) {
+                throw new IllegalArgumentException("From birth date must be in the past");
+            }
+            this.fromBirthDate = fromBirthDate;
+            return this;
+        }
+
+        public PersonFilter.PersonFilterBuilder withToBirthDate(LocalDate toBirthDate) {
+            this.toBirthDate = toBirthDate;
             return this;
         }
 
@@ -82,6 +109,8 @@ public class PersonFilter {
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.birthDate = builder.birthDate;
+        this.fromBirthDate = builder.fromBirthDate;
+        this.toBirthDate = builder.toBirthDate;
     }
 
     public Stream<Person> filter(Stream<Person> input) {
@@ -90,5 +119,13 @@ public class PersonFilter {
                 .filter(person -> (firstName == null || person.getFirstName().equalsIgnoreCase(firstName)))
                 .filter(person -> (lastName == null || person.getLastName().equalsIgnoreCase(lastName)))
                 .filter(person -> (birthDate == null || person.getBirthDate().equals(birthDate)));
+    }
+
+    public Stream<PersonRecord> filterRecord(Stream<PersonRecord> input) {
+        return input
+                .filter(person -> (id == null || person.getId().equals(id)))
+                .filter(person -> (firstName == null || person.getFirstName().equalsIgnoreCase(firstName)))
+                .filter(person -> (lastName == null || person.getLastName().equalsIgnoreCase(lastName)));
+//                .filter(person -> (birthDate == null || person.getBirthDate().equals(birthDate)));
     }
 }

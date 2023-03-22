@@ -6,6 +6,7 @@ import moviesApi.dto.PersonRecord;
 import moviesApi.filter.PersonFilter;
 import moviesApi.repository.PersonRepository;
 import moviesApi.service.PersonService;
+import moviesApi.util.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,11 +30,33 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Person save(Person person) {
+        validatePerson(person);
         return personRepository.save(person);
     }
 
     @Override
+    public Person update(Long id, Person person) {
+        Optional<Person> existingPersonOptional = findById(id);
+        if (existingPersonOptional.isEmpty()) {
+            throw new IllegalArgumentException("Can't find a movie with provided ID");
+        } else {
+            Person existingPerson = existingPersonOptional.get();
+            if (person.getFirstName() != null) {
+                existingPerson.setFirstName(person.getFirstName());
+            }
+            if (person.getLastName() != null) {
+                existingPerson.setLastName(person.getLastName());
+            }
+            if (person.getBirthDate() != null) {
+                existingPerson.setBirthDate(person.getBirthDate());
+            }
+            return save(existingPerson);
+        }
+    }
+
+    @Override
     public Optional<Person> findById(Long id) {
+        Utilities.validateId(id);
         return personRepository.findById(id);
     }
 
@@ -65,6 +88,10 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void deleteById(Long id) {
+        Optional<Person> personOptional = findById(id);
+        if (personOptional.isEmpty()) {
+            throw new IllegalArgumentException("can't find person with the provided ID");
+        }
         personRepository.deleteById(id);
     }
 
@@ -77,7 +104,19 @@ public class PersonServiceImpl implements PersonService {
      */
     @Override
     public List<Person> findAll(PersonFilter personFilter, Pageable pageable) {
-        Stream<Person> personStream = personRepository.findAll(pageable.getSort()).stream();
+        Stream<Person> personStream;
+        if (personFilter.getFromBirthDate() != null && personFilter.getToBirthDate() != null) {
+            personStream = personRepository.findByBirthDateBetween(
+                    personFilter.getFromBirthDate(), personFilter.getToBirthDate(), pageable.getSort()).stream();
+        } else if (personFilter.getFromBirthDate() != null) {
+            personStream = personRepository.findByBirthDateAfter(
+                    personFilter.getFromBirthDate(), pageable.getSort()).stream();
+        } else if (personFilter.getToBirthDate() != null) {
+            personStream = personRepository.findByBirthDateBefore(
+                    personFilter.getToBirthDate(), pageable.getSort()).stream();
+        } else {
+            personStream = personRepository.findAll(pageable.getSort()).stream();
+        }
         return personFilter
                 .filter(personStream)
                 .skip(pageable.getOffset())
@@ -105,7 +144,7 @@ public class PersonServiceImpl implements PersonService {
      * @return a list of {@link PersonRecord} objects containing the person's ID, first name, last name, amount of movies acted in, and amount of movies directed.
      */
     @Override
-    public List<PersonRecord> getSummary() {
+    public List<PersonRecord> getSummary(PersonFilter personFilter, Pageable pageable) {
         List<Object[]> results = personRepository.getUserRecords();
         List<PersonRecord> userRecords = new ArrayList<>();
 
@@ -119,6 +158,9 @@ public class PersonServiceImpl implements PersonService {
             PersonRecord personRecord = new PersonRecord(id, firstName, lastName, asActor, asDirector);
             userRecords.add(personRecord);
         }
-        return userRecords;
+        return personFilter.filterRecord(userRecords.stream())
+                .skip(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .collect(Collectors.toList());
     }
 }
