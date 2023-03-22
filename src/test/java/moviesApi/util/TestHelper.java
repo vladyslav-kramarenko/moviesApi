@@ -13,7 +13,7 @@ import java.util.List;
  * The {@code controllerHelp} class provides utility methods for generating test objects such as {@code Movie}, {@code Person}, and {@code Review}.
  * It includes methods for generating movies, reviews, and persons with specific parameters.
  */
-public class ControllerHelp {
+public class TestHelper {
     /**
      * Generates a movie object with sample parameters.
      *
@@ -49,11 +49,19 @@ public class ControllerHelp {
      * @return A Review object with the specified parameters.
      */
     public static Review generateReview(Long movieId) {
+        return generateReviewWithParams(movieId, 5f, "Test review text", LocalDateTime.now());
+    }
+    /**
+     * Generates a review object for a movie with the specified parameters.
+     *
+     * @return A Review object with the specified parameters.
+     */
+    public static Review generateReviewWithParams(Long movieId, float rating, String text, LocalDateTime dateTime) {
         Review review = new Review();
-        review.setRating(5f);
-        review.setText("Test review text");
+        review.setRating(rating);
+        review.setText(text);
         review.setMovieId(movieId);
-        review.setDateTime(LocalDateTime.now());
+        review.setDateTime(dateTime);
         return review;
     }
 

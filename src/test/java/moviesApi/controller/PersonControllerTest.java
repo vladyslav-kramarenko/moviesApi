@@ -26,8 +26,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static moviesApi.util.ControllerHelp.generatePerson;
-import static moviesApi.util.ControllerHelp.generateStringBySize;
+import static moviesApi.util.TestHelper.generatePerson;
+import static moviesApi.util.TestHelper.generateStringBySize;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,6 +50,15 @@ class PersonControllerTest {
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetAllPersonsWithWrongBirthDateParameter() {
+        LocalDate wrongBirthDate = LocalDate.of(3000, 1, 1);
+        ResponseEntity<?> response = personController.getAllPersons(
+                null, null, wrongBirthDate, null, null, 0, 50, new String[]{"id", "asc"});
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     public void testGetAllPersons() {
         // Create some test persons
         Person person1 = generatePerson();
@@ -58,16 +67,25 @@ class PersonControllerTest {
         entityManager.flush();
 
         // Call the getAllPersons method
-        ResponseEntity<?> response= personController.getAllPersons(
-                null, null, null, null, null, null, 0, 50, new String[]{"id", "asc"});
+        ResponseEntity<?> response = personController.getAllPersons(
+                null, null, null, null, null, 0, 50, new String[]{"id", "asc"});
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        List<Person> persons= (List<Person>) response.getBody();
+        List<Person> persons = (List<Person>) response.getBody();
         // Verify the response
         assertFalse(persons.isEmpty());
         assertTrue(persons.contains(person1));
 
         // Delete the test persons
         personService.deleteById(person1.getId());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetCountWithTooBigFirstName() {
+        String wrongName = generateStringBySize(Constants.MAX_FIRST_NAME_LENGTH + 1);
+        ResponseEntity<?> response = personController.getCount(
+                wrongName, null, null);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -211,5 +229,15 @@ class PersonControllerTest {
 
         Optional<Person> personOptional = personService.findById(testPerson.getId());
         assertFalse(personOptional.isPresent());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
+    public void testGetSummary() {
+        int wrongPage=-1;
+        ResponseEntity<?> response = personController.getSummary(
+                null, null, wrongPage, 10
+        );
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 }

@@ -44,7 +44,6 @@ public class PersonController {
     @ApiResponse(responseCode = "200", description = "List of persons retrieved successfully")
     @ApiResponse(responseCode = "400", description = "Invalid input parameters")
     @Parameters({
-            @Parameter(name = "id", description = "ID", in = ParameterIn.QUERY, schema = @Schema(type = "integer")),
             @Parameter(name = "firstName", description = "First Name", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "lastName", description = "Last Name", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "birthDate", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
@@ -61,7 +60,6 @@ public class PersonController {
             ))
     })
     public ResponseEntity<?> getAllPersons(
-            @RequestParam(name = "id", required = false) Long id,
             @RequestParam(name = "firstName", required = false) String firstName,
             @RequestParam(name = "lastName", required = false) String lastName,
             @RequestParam(name = "birthDate", required = false) LocalDate birthDate,
@@ -74,7 +72,6 @@ public class PersonController {
         try {
             PersonFilter personFilter = PersonFilter
                     .builder()
-                    .withId(id)
                     .withFirstName(firstName)
                     .withLastName(lastName)
                     .withBirthDate(birthDate)
@@ -186,16 +183,20 @@ public class PersonController {
             @RequestParam(name = "page", defaultValue = DEFAULT_PAGE, required = false) int page,
             @RequestParam(name = "size", defaultValue = DEFAULT_PAGE_SIZE, required = false) int size
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-        PersonFilter personFilter = PersonFilter
-                .builder()
-                .withFirstName(firstName)
-                .withLastName(lastName)
-                .build();
-        List<PersonRecord> personSummary = personService.getSummary(personFilter, pageable);
-        if (personSummary == null || personSummary.isEmpty()) {
-            return ResponseEntity.noContent().build();
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            PersonFilter personFilter = PersonFilter
+                    .builder()
+                    .withFirstName(firstName)
+                    .withLastName(lastName)
+                    .build();
+            List<PersonRecord> personSummary = personService.getSummary(personFilter, pageable);
+            if (personSummary == null || personSummary.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(personSummary);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.ok(personSummary);
     }
 }

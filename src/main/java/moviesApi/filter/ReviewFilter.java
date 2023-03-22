@@ -16,7 +16,6 @@ public class ReviewFilter {
     private LocalDateTime fromDateTime;
     private LocalDateTime toDateTime;
     private Long movieId;
-    private Long id;
 
     public Float getRatingFrom() {
         return ratingFrom;
@@ -51,9 +50,6 @@ public class ReviewFilter {
         return movieId;
     }
 
-    public Long getId() {
-        return id;
-    }
 
     public static ReviewFilter.ReviewFilterBuilder builder() {
         return new ReviewFilter.ReviewFilterBuilder();
@@ -68,7 +64,6 @@ public class ReviewFilter {
         private LocalDateTime fromDateTime;
         private LocalDateTime toDateTime;
         private Long movieId;
-        private Long id;
 
 
         public ReviewFilter.ReviewFilterBuilder withText(String text) {
@@ -125,18 +120,10 @@ public class ReviewFilter {
         }
 
         public ReviewFilter.ReviewFilterBuilder withMovieId(Long movieId) {
-            if (id != null && movieId < 0) {
+            if (movieId != null && movieId < 0) {
                 throw new IllegalArgumentException("movieId should be positive");
             }
             this.movieId = movieId;
-            return this;
-        }
-
-        public ReviewFilter.ReviewFilterBuilder withId(Long id) {
-            if (id != null && id < 0) {
-                throw new IllegalArgumentException("ID should be positive");
-            }
-            this.id = id;
             return this;
         }
 
@@ -147,7 +134,6 @@ public class ReviewFilter {
 
     private ReviewFilter(ReviewFilter.ReviewFilterBuilder builder) {
         this.text = builder.text;
-        this.id = builder.id;
         this.fromDateTime = builder.fromDateTime;
         this.toDateTime = builder.toDateTime;
         this.dateTime = builder.dateTime;
@@ -160,7 +146,6 @@ public class ReviewFilter {
     public Stream<Review> filter(Stream<Review> input) {
         return input
                 .filter(review -> (text == null || review.getText().toLowerCase().contains(text.toLowerCase())))
-                .filter(review -> (id == null || review.getId().equals(id)))
                 .filter(review -> (movieId == null || review.getMovieId().equals(movieId)))
                 .filter(review -> (rating == null || review.getRating().equals(rating)))
                 .filter(review -> (ratingTo == null || review.getRating() <= ratingTo))

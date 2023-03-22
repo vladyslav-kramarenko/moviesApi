@@ -194,15 +194,14 @@ public class MovieController {
             @RequestParam(name = "year", required = false) Integer year,
             @RequestParam(name = "directorId", required = false) Long directorId,
             @RequestParam(name = "actorIds", required = false) Long[] actorIds) {
-
-        MovieFilter movieFilter = MovieFilter.builder()
-                .withTitle(title)
-                .withGenre(genres)
-                .withYear(year)
-                .withDirectorId(directorId)
-                .withActorIds(actorIds)
-                .build();
         try {
+            MovieFilter movieFilter = MovieFilter.builder()
+                    .withTitle(title)
+                    .withGenre(genres)
+                    .withYear(year)
+                    .withDirectorId(directorId)
+                    .withActorIds(actorIds)
+                    .build();
             return ResponseEntity.ok(movieService.count(movieFilter));
         } catch (IllegalArgumentException | ConstraintViolationException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -311,7 +310,7 @@ public class MovieController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the number of movies by mode parameter")
     })
     @GetMapping("/summary")
-    public ResponseEntity<?> getMovieCountByGenre(@RequestParam(name = "mode") String mode) {
+    public ResponseEntity<?> getSummary(@RequestParam(name = "mode") String mode) {
         try {
             if (mode.equalsIgnoreCase("GENRE")) {
                 return ResponseEntity.ok(movieService.getMovieCountByGenre());

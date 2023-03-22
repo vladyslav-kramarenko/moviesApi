@@ -42,15 +42,14 @@ public class ReviewController {
     @Operation(summary = "Delete a review by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Review deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "The review you are trying to delete doesn't exist")
+            @ApiResponse(responseCode = "400", description = "Invalid id")
     })
     public ResponseEntity<?> deleteReview(@PathVariable Long id) {
-        Optional<Review> reviewOptional = reviewService.findById(id);
-        if (reviewOptional.isPresent()) {
+        try {
             reviewService.deleteById(id);
             return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -95,8 +94,8 @@ public class ReviewController {
             List<Sort.Order> orders = createSort(sortParams, allowedProperties);
 
             ReviewFilter reviewFilter = ReviewFilter.builder()
-                    .withId(movieId)
                     .withRating(rating)
+                    .withMovieId(movieId)
                     .withRatingFrom(ratingFrom)
                     .withRatingTo(ratingTo)
                     .withDateTime(dateTime)
@@ -144,7 +143,7 @@ public class ReviewController {
         try {
             ReviewFilter reviewFilter = ReviewFilter.builder()
                     .withDateTime(dateTime)
-                    .withId(movieId)
+                    .withMovieId(movieId)
                     .withText(text)
                     .withRatingFrom(ratingFrom)
                     .withRatingTo(ratingTo)
