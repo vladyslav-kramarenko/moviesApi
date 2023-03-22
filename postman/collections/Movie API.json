@@ -34,7 +34,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/movies",
+							"raw": "http://localhost:8080/api/movies?sort=releaseYear,asc",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -59,13 +59,13 @@
 								},
 								{
 									"key": "directorId",
-									"value": "6",
+									"value": "14",
 									"type": "text",
 									"disabled": true
 								},
 								{
 									"key": "actorIds",
-									"value": "3,7",
+									"value": "10",
 									"disabled": true
 								},
 								{
@@ -88,9 +88,7 @@
 								},
 								{
 									"key": "sort",
-									"value": "releaseYear,asc",
-									"type": "text",
-									"disabled": true
+									"value": "releaseYear,asc"
 								},
 								{
 									"key": "sort",
@@ -107,6 +105,18 @@
 								{
 									"key": "sort",
 									"value": "id,desc",
+									"disabled": true
+								},
+								{
+									"key": "fromYear",
+									"value": "2000",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "toYear",
+									"value": "2000",
+									"type": "text",
 									"disabled": true
 								}
 							]
@@ -195,7 +205,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/movies/summary?mode=RELEASE_YEAR",
+							"raw": "http://localhost:8080/api/movies/summary?mode=DIRECTOR",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -216,6 +226,16 @@
 								{
 									"key": "mode",
 									"value": "RELEASE_YEAR",
+									"disabled": true
+								},
+								{
+									"key": "mode",
+									"value": "RATING",
+									"disabled": true
+								},
+								{
+									"key": "mode",
+									"value": "DIRECTOR",
 									"type": "text"
 								}
 							]
@@ -266,6 +286,40 @@
 							"path": [
 								"api",
 								"movies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a movie",
+					"id": "660f9404-d87a-4284-a072-97416d217874",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"releaseYear\":\"2007\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movies/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"2"
 							]
 						}
 					},
@@ -386,7 +440,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/movies/483/reviews",
+							"raw": "http://localhost:8080/api/movies/21/reviews",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -395,8 +449,70 @@
 							"path": [
 								"api",
 								"movies",
-								"483",
+								"21",
 								"reviews"
+							],
+							"query": [
+								{
+									"key": "dateTime",
+									"value": "2023-03-10T23:14:54",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "fromDateTime",
+									"value": "2023-03-10T23:00:00",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "toDateTime",
+									"value": "2023-03-20T23:00:00",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "rating",
+									"value": "5",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "text",
+									"value": null,
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": null,
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": null,
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "sort",
+									"value": null,
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "ratingTo",
+									"value": "24",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "ratingFrom",
+									"value": "5",
+									"type": "text",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -514,7 +630,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/persons?birthDate=1990-01-01",
+							"raw": "http://localhost:8080/api/persons",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -539,13 +655,25 @@
 								},
 								{
 									"key": "lastName",
-									"value": "doe",
+									"value": "hanks",
+									"disabled": true
+								},
+								{
+									"key": "birthDateFrom",
+									"value": "1990-01-01",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "birthDateTo",
+									"value": "1990-01-01",
 									"type": "text",
 									"disabled": true
 								},
 								{
 									"key": "birthDate",
-									"value": "1990-01-01"
+									"value": "1990-01-01",
+									"disabled": true
 								},
 								{
 									"key": "page",
@@ -667,6 +795,20 @@
 								"api",
 								"persons",
 								"summary"
+							],
+							"query": [
+								{
+									"key": "firstName",
+									"value": "Al",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "lastName",
+									"value": "Tarantino",
+									"type": "text",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -897,8 +1039,32 @@
 									"disabled": true
 								},
 								{
+									"key": "ratingTo",
+									"value": "6",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "ratingFrom",
+									"value": "6",
+									"type": "text",
+									"disabled": true
+								},
+								{
 									"key": "dateTime",
 									"value": "2023-03-10T23:14:54",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "fromDateTime",
+									"value": "2023-03-10T23:14:55",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "toDateTime",
+									"value": "2023-03-10T23:14:55",
 									"type": "text",
 									"disabled": true
 								},
@@ -923,12 +1089,23 @@
 								{
 									"key": "sort",
 									"value": "rating,asc",
-									"type": "text",
 									"disabled": true
 								},
 								{
 									"key": "text",
 									"value": "and",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "0",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "size",
+									"value": "2",
 									"type": "text",
 									"disabled": true
 								}
@@ -1069,7 +1246,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"rating\": 5,\r\n  \"text\": \"new string\"\r\n}",
+							"raw": "{\r\n  \"rating\": 4,\r\n  \"text\": \"A dark and powerful drama\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1077,7 +1254,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/api/reviews/311",
+							"raw": "http://localhost:8080/api/reviews/21",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1086,7 +1263,7 @@
 							"path": [
 								"api",
 								"reviews",
-								"311"
+								"21"
 							]
 						}
 					},
