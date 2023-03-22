@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface ReviewService {
 
     Review save(Long movieId, Review review);
-    Review update(Long id,Review review);
+    Optional<Review> update(Long id,Review review);
 
     Optional<Review> findById(Long reviewId);
 

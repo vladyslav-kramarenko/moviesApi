@@ -38,15 +38,24 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Review update(Long id, Review review) {
+    public Optional<Review> update(Long id, Review review) {
         validateId(id);
-        validateReview(review);
-        review.setId(id);
-        return reviewRepository.save(review);
+        Optional<Review> existingReviewOptional = findById(id);
+        if (existingReviewOptional.isEmpty()) return Optional.empty();
+
+        Review existingReview = existingReviewOptional.get();
+        if (review.getRating() != null) {
+            existingReview.setRating(review.getRating());
+        }
+        if (review.getText() != null) {
+            existingReview.setText(review.getText());
+        }
+        return Optional.of(reviewRepository.save(existingReview));
     }
 
     @Override
     public Optional<Review> findById(Long id) {
+        validateId(id);
         return reviewRepository.findById(id);
     }
 
@@ -58,7 +67,17 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<Review> findAll(ReviewFilter reviewFilter, Pageable pageable) {
-        Stream<Review> reviewStream = reviewRepository.findAll(pageable.getSort()).stream();
+        Stream<Review> reviewStream;
+        if (reviewFilter.getFromDateTime() != null && reviewFilter.getToDateTime() != null) {
+            reviewStream = reviewRepository.findByDateTimeBetween(reviewFilter.getFromDateTime(), reviewFilter.getToDateTime(), pageable.getSort()).stream();
+        } else if (reviewFilter.getToDateTime() != null) {
+            reviewStream = reviewRepository.findByDateTimeBefore(reviewFilter.getToDateTime(), pageable.getSort()).stream();
+        } else if (reviewFilter.getFromDateTime() != null) {
+            reviewStream = reviewRepository.findByDateTimeAfter(reviewFilter.getFromDateTime(), pageable.getSort()).stream();
+        } else {
+            reviewStream = reviewRepository.findAll(pageable.getSort()).stream();
+        }
+
         return reviewFilter.filter(reviewStream)
                 .skip(pageable.getOffset())
                 .limit(pageable.getPageSize())

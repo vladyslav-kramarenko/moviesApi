@@ -27,7 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -233,7 +232,11 @@ public class MovieController {
     @Parameters({
             @Parameter(name = "text", description = "Filter reviews by text", in = ParameterIn.QUERY, schema = @Schema(type = "string")),
             @Parameter(name = "rating", description = "Filter reviews by rating", in = ParameterIn.QUERY, schema = @Schema(type = "float")),
-            @Parameter(name = "date_time", description = "Filter reviews by date/time", in = ParameterIn.QUERY, schema = @Schema(type = "Date/time")),
+            @Parameter(name = "ratingTo", description = "Filter reviews by rating", in = ParameterIn.QUERY, schema = @Schema(type = "float")),
+            @Parameter(name = "ratingFrom", description = "Filter reviews by rating", in = ParameterIn.QUERY, schema = @Schema(type = "float")),
+            @Parameter(name = "dateTime", description = "Filter reviews by date/time", in = ParameterIn.QUERY, schema = @Schema(type = "Date/time")),
+            @Parameter(name = "fromDateTime", description = "Filter reviews by date/time", in = ParameterIn.QUERY, schema = @Schema(type = "Date/time")),
+            @Parameter(name = "ToDateTime", description = "Filter reviews by date/time", in = ParameterIn.QUERY, schema = @Schema(type = "Date/time")),
             @Parameter(name = "page", description = "Page number (starting from 0)", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "0")),
             @Parameter(name = "size", description = "Page size", in = ParameterIn.QUERY, schema = @Schema(type = "integer", defaultValue = "10")),
             @Parameter(
@@ -245,9 +248,11 @@ public class MovieController {
     public ResponseEntity<?> getReviewsByMovieId(
             @PathVariable Long movieId,
             @RequestParam(name = "dateTime", required = false) LocalDateTime dateTime,
-            @RequestParam(name = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam(name = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            @RequestParam(name = "fromDateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime fromDateTime,
+            @RequestParam(name = "toDateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime toDateTime,
             @RequestParam(name = "rating", required = false) Float rating,
+            @RequestParam(name = "ratingFrom", required = false) Float ratingFrom,
+            @RequestParam(name = "ratingTo", required = false) Float ratingTo,
             @RequestParam(name = "text", required = false) String text,
             @RequestParam(name = "page", defaultValue = DEFAULT_PAGE) int page,
             @RequestParam(name = "size", defaultValue = DEFAULT_PAGE_SIZE) int size,
@@ -261,9 +266,11 @@ public class MovieController {
                 ReviewFilter reviewFilter = ReviewFilter.builder()
                         .withMovieId(movieId)
                         .withRating(rating)
+                        .withRatingFrom(ratingFrom)
+                        .withRatingTo(ratingTo)
                         .withDateTime(dateTime)
-//                        .withFromDate(fromDate)
-//                        .withToDate(toDate)
+                        .withFromDateTime(fromDateTime)
+                        .withToDateTime(toDateTime)
                         .withText(text)
                         .build();
 
